@@ -1,9 +1,10 @@
 import React from "react";
+import Landing from "./pages/Landing";
 
 function App() {
   return (
     <div>
-      <h1>Welcome to the Workly App </h1>
+      <Landing />
     </div>
   )
 }
