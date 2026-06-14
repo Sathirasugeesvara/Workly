@@ -14,17 +14,30 @@
   align-items: center;
   min-height: 600px;
   padding: 60px 48px;
-  background: #ffffff;
-  background-image:
-    radial-gradient(circle at 12% 18%, rgba(255, 154, 0, 0.14), transparent 40%),
-    radial-gradient(circle at 88% 82%, rgba(255, 200, 0, 0.1), transparent 40%);
   overflow: hidden;
+  background: #0a0a0a;
+}
+
+.hero-slider {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(10, 10, 10, 0.92) 0%, rgba(10, 10, 10, 0.6) 45%, rgba(10, 10, 10, 0.2) 100%),
+    radial-gradient(circle at 12% 18%, rgba(255, 154, 0, 0.18), transparent 40%);
 }
 
 .hero-content {
+  position: relative;
+  z-index: 2;
   flex: 1;
   max-width: 560px;
-  z-index: 2;
 }
 
 .hero-badge {
@@ -33,8 +46,9 @@
   gap: 8px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255, 152, 0, 0.1);
-  color: #ff6a00;
+  background: rgba(255, 152, 0, 0.15);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+  color: #ffb74d;
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 20px;
@@ -45,7 +59,7 @@
   line-height: 1.2;
   font-weight: 700;
   margin: 0 0 18px;
-  color: #0a0a0a;
+  color: #fff;
 }
 
 .hero-content h1 span {
@@ -58,7 +72,7 @@
 .hero-content p {
   font-size: 16px;
   line-height: 1.7;
-  color: #5a5a5a;
+  color: rgba(255, 255, 255, 0.75);
   margin: 0 0 32px;
   max-width: 460px;
 }
@@ -94,13 +108,13 @@
 }
 
 .btn-outline {
-  background: transparent;
-  border-color: rgba(0, 0, 0, 0.15);
-  color: #1a1a1a;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
 }
 
 .btn-outline:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .hero-trust {
@@ -112,61 +126,28 @@
   display: block;
   font-size: 22px;
   font-weight: 700;
-  color: #ff6a00;
+  color: #ff9800;
 }
 
 .hero-trust div span {
   font-size: 12.5px;
-  color: #8a8a8a;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-/* hero visual */
-.hero-visual {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  min-height: 420px;
-}
-
+/* floating info card on the hero image */
 .hero-card {
-  position: relative;
-  width: 360px;
-  height: 420px;
-  border-radius: 20px;
-  background: #0a0a0a;
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(255, 154, 0, 0.25), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(255, 200, 0, 0.18), transparent 45%);
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-}
-
-.hero-card-icons {
   position: absolute;
-  inset: 0;
-}
-
-.hero-card-icons i {
-  position: absolute;
-  color: rgba(255, 152, 0, 0.22);
-}
-
-.hc1 { top: 10%; left: 12%; font-size: 46px; }
-.hc2 { top: 65%; left: 18%; font-size: 36px; color: rgba(255, 200, 0, 0.22); }
-.hc3 { top: 22%; left: 68%; font-size: 52px; }
-.hc4 { top: 75%; left: 60%; font-size: 38px; color: rgba(255, 200, 0, 0.2); }
-.hc5 { top: 45%; left: 40%; font-size: 30px; }
-
-.hero-card-content {
-  position: absolute;
-  inset: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  z-index: 2;
+  right: 48px;
+  bottom: 40px;
+  max-width: 260px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: rgba(10, 10, 10, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #fff;
-  z-index: 1;
 }
 
 .hero-card-tag {
@@ -179,16 +160,15 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 12px;
   margin-bottom: 12px;
-  align-self: flex-start;
 }
 
-.hero-card-content h3 {
-  font-size: 20px;
+.hero-card h3 {
+  font-size: 18px;
   font-weight: 700;
   margin: 0 0 6px;
 }
 
-.hero-card-content p {
+.hero-card p {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
@@ -356,6 +336,29 @@
   gap: 4px;
 }
 
+.service-card-more {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(255, 208, 0, 0.12), rgba(255, 106, 0, 0.12));
+  border: 1px dashed rgba(255, 106, 0, 0.35);
+  color: #ff6a00;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.service-card-more:hover {
+  background: linear-gradient(135deg, rgba(255, 208, 0, 0.2), rgba(255, 106, 0, 0.2));
+  border-color: rgba(255, 106, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.service-card-more i {
+  font-size: 16px;
+}
+
 /* ===================== WHY CHOOSE ===================== */
 .why-grid {
   display: grid;
@@ -380,9 +383,27 @@
   overflow: hidden;
 }
 
-.why-visual i {
-  font-size: 120px;
-  color: rgba(255, 152, 0, 0.3);
+/* ===================== IMAGE SLIDER ===================== */
+.image-slider {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.slider-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.slider-img.active {
+  opacity: 1;
+  z-index: 1;
 }
 
 .why-list {
@@ -491,7 +512,7 @@
     flex-direction: column;
     text-align: center;
     padding: 48px 24px;
-    min-height: auto;
+    min-height: 520px;
   }
 
   .hero-content {
@@ -508,8 +529,10 @@
     justify-content: center;
   }
 
-  .hero-visual {
-    margin-top: 40px;
+  .hero-card {
+    position: static;
+    margin: 24px auto 0;
+    max-width: 320px;
   }
 }
 
@@ -540,9 +563,13 @@
   .cta-actions {
     flex-direction: column;
   }
+}
 
-  .hero-card {
-    width: 100%;
-    max-width: 340px;
+@media (max-width: 900px) {
+  .hero-overlay {
+    background:
+      linear-gradient(180deg, rgba(10, 10, 10, 0.55) 0%, rgba(10, 10, 10, 0.85) 100%),
+      radial-gradient(circle at 50% 30%, rgba(255, 154, 0, 0.15), transparent 50%);
   }
 }
+
