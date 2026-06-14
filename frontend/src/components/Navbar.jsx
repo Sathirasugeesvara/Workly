@@ -18,6 +18,7 @@ export default function Navbar() {
     { path: '/', label: 'Home' },
     { path: '/services', label: 'Services' },
     { path: '/providers', label: 'Find providers' },
+    { path: '/aibot', label: 'Help with AI' },
     { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
   ];

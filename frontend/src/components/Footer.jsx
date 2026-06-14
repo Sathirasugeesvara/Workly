@@ -50,7 +50,7 @@ export default function Footer() {
             <li><Link to="/services">Browse services</Link></li>
             <li><Link to="/how-it-works">How it works</Link></li>
             <li><Link to="/register">Become a provider</Link></li>
-            <li><Link to="/help">Help center</Link></li>
+            <li><Link to="/aibot">Help center</Link></li>
           </ul>
         </div>
 
@@ -74,7 +74,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <span>© {new Date().getFullYear()} Workly. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} XenoraLabs. All rights reserved.</span>
         <div className="footer-bottom-links">
           <Link to="/terms">Terms</Link>
           <Link to="/privacy">Privacy</Link>
