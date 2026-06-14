@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import ImageSlider from '../components/ImageSlider';
 import './Home.css';
 
 const services = [
   { icon: 'ti-bulb', title: 'Electrical', desc: 'Wiring, repairs & installs' },
   { icon: 'ti-droplet', title: 'Plumbing', desc: 'Leaks, pipes & fittings' },
-  { icon: 'ti-air-conditioning', title: 'AC repair', desc: 'Service & maintenance' },
+  { icon: 'ti-air-conditioning', title: 'Repair', desc: 'Service & maintenance' },
   { icon: 'ti-brush', title: 'Painting', desc: 'Interior & exterior' },
   { icon: 'ti-hammer', title: 'Carpentry', desc: 'Furniture & fittings' },
   { icon: 'ti-tools', title: 'General repair', desc: 'Home fix-ups' },
   { icon: 'ti-spray', title: 'Cleaning', desc: 'Deep & regular cleaning' },
-  { icon: 'ti-bricks', title: 'Masonry', desc: 'Tiling & construction' },
+  { icon: 'ti-building-warehouse', title: 'Masonry', desc: 'Tiling & construction' },
 ];
 
 const steps = [
@@ -36,6 +37,50 @@ const steps = [
     title: 'Rate & review',
     desc: 'Share your experience to help other users and reward great service.',
   },
+];
+
+const heroSlides = [
+  {
+    image: '/heroimages/hero-1.jpg',
+    title: 'Electrical repair',
+    detail: 'Booked for tomorrow, 10:00 AM — Kandy',
+  },
+  {
+    image: '/heroimages/hero-2.jpg',
+    title: 'House painting',
+    detail: 'Booked for tomorrow, 9:30 AM — Kandy',
+  },
+  {
+    image: '/heroimages/hero-3.jpg',
+    title: 'Car repair service',
+    detail: 'Booked for tomorrow, 2:00 PM — Kandy',
+  },
+  {
+    image: '/heroimages/hero-4.jpg',
+    title: 'Garden maintenance',
+    detail: 'Booked for tomorrow, 8:00 AM — Kandy',
+  },
+  {
+    image: '/heroimages/hero-5.jpg',
+    title: 'AC repair & service',
+    detail: 'Booked for tomorrow, 11:00 AM — Kandy',
+  },
+  {
+    image: '/heroimages/hero-6.jpg',
+    title: 'Plumbing repair',
+    detail: 'Booked for tomorrow, 3:00 PM — Kandy',
+  },
+];
+
+const heroImages = heroSlides.map((slide) => slide.image);
+
+const whyImages = [
+  '/whyimages/why-1.jpg',
+  '/whyimages/why-2.jpg',
+  '/whyimages/why-3.jpg',
+  '/whyimages/why-4.jpg',
+  '/whyimages/why-5.jpg',
+  '/whyimages/why-6.jpg',
 ];
 
 const whyItems = [
@@ -62,12 +107,19 @@ const whyItems = [
 ];
 
 export default function Home() {
+  const [heroSlide, setHeroSlide] = useState(0);
+
   return (
     <div className="home">
       <Navbar />
 
       {/* Hero */}
       <section className="hero">
+        <div className="hero-slider">
+          <ImageSlider images={heroImages} interval={4000} onChange={setHeroSlide} />
+        </div>
+        <div className="hero-overlay"></div>
+
         <div className="hero-content">
           <span className="hero-badge">
             <i className="ti ti-sparkles" aria-hidden="true"></i>
@@ -106,24 +158,13 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hero-visual">
-          <div className="hero-card">
-            <div className="hero-card-icons" aria-hidden="true">
-              <i className="ti ti-bulb hc1"></i>
-              <i className="ti ti-wrench hc2"></i>
-              <i className="ti ti-air-conditioning hc3"></i>
-              <i className="ti ti-brush hc4"></i>
-              <i className="ti ti-bolt hc5"></i>
-            </div>
-            <div className="hero-card-content">
-              <span className="hero-card-tag">
-                <i className="ti ti-circle-check" aria-hidden="true"></i>
-                Verified provider
-              </span>
-              <h3>Electrical repair</h3>
-              <p>Booked for tomorrow, 10:00 AM — Kandy</p>
-            </div>
-          </div>
+        <div className="hero-card">
+          <span className="hero-card-tag">
+            <i className="ti ti-circle-check" aria-hidden="true"></i>
+            Verified provider
+          </span>
+          <h3>{heroSlides[heroSlide].title}</h3>
+          <p>{heroSlides[heroSlide].detail}</p>
         </div>
       </section>
 
@@ -174,14 +215,19 @@ export default function Home() {
               </span>
             </Link>
           ))}
+
+          <Link to="/services" className="service-card service-card-more">
+            <span>View all services</span>
+            <i className="ti ti-arrow-right" aria-hidden="true"></i>
+          </Link>
         </div>
       </section>
 
       {/* Why choose us */}
       <section className="section">
         <div className="why-grid">
-          <div className="why-visual" aria-hidden="true">
-            <i className="ti ti-tools"></i>
+          <div className="why-visual">
+            <ImageSlider images={whyImages} interval={4000} />
           </div>
           <div>
             <span className="section-eyebrow">Why Workly</span>

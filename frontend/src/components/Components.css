@@ -94,6 +94,12 @@
   gap: 12px;
 }
 
+/* Mobile-only blocks: hidden by default so they don't double up on desktop */
+.nav-actions-mobile,
+.nav-user-mobile {
+  display: none;
+}
+
 .nav-btn {
   display: inline-flex;
   align-items: center;
@@ -176,6 +182,16 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .nav-links.open .nav-user-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
     width: 100%;
     margin-top: 8px;
     padding-top: 12px;
@@ -301,10 +317,11 @@
   line-height: 1.6;
 }
 
-.footer-contact i {
+.footer-contact svg {
   font-size: 16px;
   color: var(--brand-orange);
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .footer-bottom {
@@ -364,4 +381,86 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.nav-user {
+  position: relative;
+}
+
+.nav-user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.nav-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.nav-user-caret {
+  transition: transform 0.2s ease;
+}
+
+.nav-user-caret.rotated {
+  transform: rotate(180deg);
+}
+
+.nav-user-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.6rem);
+  min-width: 200px;
+  background: #15151c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  z-index: 50;
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  color: inherit;
+}
+
+.nav-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.3rem 0;
+}
+
+.nav-logout {
+  color: #f87171;
 }

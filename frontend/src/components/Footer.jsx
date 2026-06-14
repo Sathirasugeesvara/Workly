@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn } from 'react-icons/fa6';
+import { TbMapPin, TbMail, TbPhone } from 'react-icons/tb';
 import './components.css';
 import logo from '../assets/logo.png';
 
@@ -18,16 +20,16 @@ export default function Footer() {
           </p>
           <div className="footer-socials">
             <a href="#" className="footer-social-btn" aria-label="Facebook">
-              <i className="ti ti-brand-facebook" aria-hidden="true"></i>
+              <FaFacebookF aria-hidden="true" />
             </a>
             <a href="#" className="footer-social-btn" aria-label="Instagram">
-              <i className="ti ti-brand-instagram" aria-hidden="true"></i>
+              <FaInstagram aria-hidden="true" />
             </a>
             <a href="#" className="footer-social-btn" aria-label="X (Twitter)">
-              <i className="ti ti-brand-x" aria-hidden="true"></i>
+              <FaXTwitter aria-hidden="true" />
             </a>
             <a href="#" className="footer-social-btn" aria-label="LinkedIn">
-              <i className="ti ti-brand-linkedin" aria-hidden="true"></i>
+              <FaLinkedinIn aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -56,16 +58,16 @@ export default function Footer() {
           <h4>Get in touch</h4>
           <ul className="footer-contact">
             <li>
-              <i className="ti ti-map-pin" aria-hidden="true"></i>
+              <TbMapPin aria-hidden="true" />
               <span>Colombo, Western Province, Sri Lanka</span>
             </li>
             <li>
-              <i className="ti ti-mail" aria-hidden="true"></i>
+              <TbMail aria-hidden="true" />
               <span>xenoralabs@gmail.com</span>
             </li>
             <li>
-              <i className="ti ti-phone" aria-hidden="true"></i>
-              <span>+94 784627089</span>
+              <TbPhone aria-hidden="true" />
+              <span>+94 78 462 7089</span>
             </li>
           </ul>
         </div>
