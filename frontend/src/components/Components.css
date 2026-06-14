@@ -126,6 +126,7 @@
 
 .nav-btn-solid {
   background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-orange) 55%, var(--brand-orange-dark) 100%);
+  background-clip: padding-box;
   color: #fff;
 }
 
