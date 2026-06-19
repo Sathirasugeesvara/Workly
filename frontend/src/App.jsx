@@ -9,6 +9,9 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Blog from './pages/Blog';
+import Services from './pages/Services';
+import Providers from './pages/Providers';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -24,6 +27,10 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/cookies" element={<Cookies />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/providers" element={<Providers />} />
+        <Route path="/profile/:id" element={<Profile />} />
+        
 
 
         {/* other routes like /dashboard, /forgot-password, etc. */}
