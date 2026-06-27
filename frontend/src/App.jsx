@@ -30,7 +30,6 @@ function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/providers" element={<Providers />} />
         <Route path="/profile/:id" element={<Profile />} />
-        
 
 
         {/* other routes like /dashboard, /forgot-password, etc. */}
