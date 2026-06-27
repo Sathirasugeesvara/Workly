@@ -22,47 +22,60 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './Profile.css';
 
-// TODO: replace with GET /api/users/:id (or /api/providers/:id) once backend is ready
-const mockCustomer = {
-  id: 'c1',
-  role: 'customer',
-  name: 'Sathira Sugeesvara',
-  email: 'sathira@example.com',
-  mobile: '+94 77 123 4567',
-  address: 'Negombo, Western Province, Sri Lanka',
-  dob: '2003-05-14',
-  gender: 'Male',
-  language: 'Sinhala, English',
-  image: '',
+const mockProviders = {
+  p1: { id: 'p1', role: 'provider', name: 'Nuwan Perera', image: '', address: 'Kandy, Sri Lanka', gender: 'Male', rating: 4.9, reviews: 312, jobsDone: 480, verified: true, skills: ['Electrical wiring', 'Switchboard repair', 'Lighting installation', 'Inverter setup'], mobile: '+94 71 234 5678', whatsapp: '+94 71 234 5678', email: 'nuwan.perera@example.com' },
+  p2: { id: 'p2', role: 'provider', name: 'Sahan Fernando', image: '', address: 'Colombo, Sri Lanka', gender: 'Male', rating: 4.8, reviews: 278, jobsDone: 392, verified: true, skills: ['Pipe leak repair', 'Bathroom fittings', 'Water pressure'], mobile: '+94 72 345 6789', whatsapp: '+94 72 345 6789', email: 'sahan.fernando@example.com' },
+  p3: { id: 'p3', role: 'provider', name: 'Dilani Silva', image: '', address: 'Colombo, Sri Lanka', gender: 'Female', rating: 4.9, reviews: 512, jobsDone: 610, verified: true, skills: ['Deep home cleaning', 'Post-construction cleanup', 'Regular cleaning'], mobile: '+94 76 456 7890', whatsapp: '+94 76 456 7890', email: 'dilani.silva@example.com' },
+  p4: { id: 'p4', role: 'provider', name: 'Roshan Jayasuriya', image: '', address: 'Gampaha, Sri Lanka', gender: 'Male', rating: 4.8, reviews: 119, jobsDone: 204, verified: true, skills: ['AC servicing', 'Gas refill', 'AC installation'], mobile: '+94 77 567 8901', whatsapp: '+94 77 567 8901', email: 'roshan.j@example.com' },
+  p5: { id: 'p5', role: 'provider', name: 'Kasun Bandara', image: '', address: 'Kandy, Sri Lanka', gender: 'Male', rating: 4.6, reviews: 88, jobsDone: 142, verified: false, skills: ['Interior painting', 'Exterior painting', 'Wall preparation'], mobile: '+94 78 678 9012', whatsapp: '+94 78 678 9012', email: 'kasun.bandara@example.com' },
+  p6: { id: 'p6', role: 'provider', name: 'Priyantha Kumara', image: '', address: 'Negombo, Sri Lanka', gender: 'Male', rating: 4.8, reviews: 134, jobsDone: 219, verified: true, skills: ['Custom furniture', 'Door repair', 'Window fittings', 'Shelving'], mobile: '+94 71 789 0123', whatsapp: '+94 71 789 0123', email: 'priyantha.k@example.com' },
+  p7: { id: 'p7', role: 'provider', name: 'Chamara Rathnayake', image: '', address: 'Kandy, Sri Lanka', gender: 'Male', rating: 4.7, reviews: 142, jobsDone: 167, verified: true, skills: ['Tiling', 'Flooring', 'Brickwork', 'Plastering'], mobile: '+94 72 890 1234', whatsapp: '+94 72 890 1234', email: 'chamara.r@example.com' },
+  p8: { id: 'p8', role: 'provider', name: 'Anushka Wijesinghe', image: '', address: 'Colombo, Sri Lanka', gender: 'Male', rating: 4.8, reviews: 267, jobsDone: 355, verified: true, skills: ['Handyman repairs', 'Mounting', 'Assembly', 'Pest control'], mobile: '+94 76 901 2345', whatsapp: '+94 76 901 2345', email: 'anushka.w@example.com' },
+  p9: { id: 'p9', role: 'provider', name: 'Lasith Gunawardena', image: '', address: 'Negombo, Sri Lanka', gender: 'Male', rating: 4.7, reviews: 96, jobsDone: 130, verified: false, skills: ['Electrical wiring', 'Lighting installation'], mobile: '+94 77 012 3456', whatsapp: '+94 77 012 3456', email: 'lasith.g@example.com' },
+  p10: { id: 'p10', role: 'provider', name: 'Tharindu Mendis', image: '', address: 'Gampaha, Sri Lanka', gender: 'Male', rating: 4.6, reviews: 71, jobsDone: 98, verified: true, skills: ['Pipe repairs', 'Bathroom fittings'], mobile: '+94 78 123 4567', whatsapp: '+94 78 123 4567', email: 'tharindu.m@example.com' },
 };
 
-const mockProvider = {
-  id: 'p1',
-  role: 'provider',
-  name: 'Nuwan Perera',
-  image: '',
-  address: 'Kandy, Sri Lanka',
-  gender: 'Male',
-  rating: 4.9,
-  reviews: 312,
-  jobsDone: 480,
-  verified: true,
-  skills: ['Electrical wiring', 'Switchboard repair', 'Lighting installation', 'Inverter setup'],
-  mobile: '+94 71 234 5678',
-  whatsapp: '+94 71 234 5678',
-  email: 'nuwan.perera@example.com',
+const mockCustomers = {
+  c1: {
+    id: 'c1',
+    role: 'customer',
+    name: 'Sathira Sugeesvara',
+    email: 'sathira@example.com',
+    mobile: '+94 77 123 4567',
+    address: 'Negombo, Western Province, Sri Lanka',
+    dob: '2003-05-14',
+    gender: 'Male',
+    language: 'Sinhala, English',
+    image: '',
+  },
 };
 
-// Determine whether the current logged-in user owns this profile.
-// TODO: replace with real auth check, e.g. currentUser.id === id
+// TODO: replace with real auth context — current logged-in user id
 const CURRENT_USER_ID = 'c1';
+
+const notFoundData = {
+  id: '404',
+  role: 'customer',
+  name: 'Unknown User',
+  email: '',
+  mobile: '',
+  address: '',
+  dob: '',
+  gender: '',
+  language: '',
+  image: '',
+};
 
 export default function Profile() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // TODO: fetch real data by id; for now fall back to mock customer/provider by id prefix
-  const initialData = id?.startsWith('p') ? mockProvider : mockCustomer;
+  // TODO: replace with fetch('/api/users/' + id) once backend ready
+  const initialData =
+    id?.startsWith('p')
+      ? (mockProviders[id] || notFoundData)
+      : (mockCustomers[id] || notFoundData);
+
   const isOwnProfile = id === CURRENT_USER_ID;
 
   const [data, setData] = useState(initialData);
@@ -88,7 +101,8 @@ export default function Profile() {
     .split(' ')
     .map((n) => n[0])
     .join('')
-    .slice(0, 2);
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className="profile-page">
@@ -144,7 +158,9 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
         <div className="profile-card-header">
           <div className="profile-avatar-wrap">
             <div className="profile-avatar">
-              {data.image ? <img src={data.image} alt={data.name} /> : initials}
+              {data.image
+                ? <img src={data.image} alt={data.name} />
+                : initials}
             </div>
             {editMode && (
               <button className="profile-avatar-edit" aria-label="Change photo">
@@ -163,18 +179,15 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
               {editMode ? (
                 <>
                   <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
-                    <X size={15} aria-hidden="true" />
-                    Cancel
+                    <X size={15} aria-hidden="true" /> Cancel
                   </button>
                   <button className="profile-btn profile-btn-solid" onClick={onSave}>
-                    <Save size={15} aria-hidden="true" />
-                    Save changes
+                    <Save size={15} aria-hidden="true" /> Save changes
                   </button>
                 </>
               ) : (
                 <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                  <Pencil size={15} aria-hidden="true" />
-                  Edit profile
+                  <Pencil size={15} aria-hidden="true" /> Edit profile
                 </button>
               )}
             </div>
@@ -188,7 +201,6 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
                 <field.icon size={14} aria-hidden="true" />
                 {field.label}
               </label>
-
               {editMode ? (
                 field.type === 'select' ? (
                   <select
@@ -235,7 +247,9 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
           <div className="profile-card-header">
             <div className="profile-avatar-wrap">
               <div className="profile-avatar provider">
-                {data.image ? <img src={data.image} alt={data.name} /> : initials}
+                {data.image
+                  ? <img src={data.image} alt={data.name} />
+                  : initials}
               </div>
               {editMode && (
                 <button className="profile-avatar-edit" aria-label="Change photo">
@@ -248,11 +262,10 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
               <h1>
                 {editMode ? draft.name : data.name}
                 {data.verified && (
-                  <BadgeCheck size={20} className="profile-verified-icon" aria-label="Verified provider" />
+                  <BadgeCheck size={20} className="profile-verified-icon" aria-label="Verified" />
                 )}
               </h1>
               <span className="profile-role-tag provider">Service provider</span>
-
               <div className="profile-stats-row">
                 <span>
                   <Star size={14} className="star-icon" aria-hidden="true" />
@@ -270,25 +283,21 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
                 {editMode ? (
                   <>
                     <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
-                      <X size={15} aria-hidden="true" />
-                      Cancel
+                      <X size={15} aria-hidden="true" /> Cancel
                     </button>
                     <button className="profile-btn profile-btn-solid" onClick={onSave}>
-                      <Save size={15} aria-hidden="true" />
-                      Save changes
+                      <Save size={15} aria-hidden="true" /> Save changes
                     </button>
                   </>
                 ) : (
                   <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                    <Pencil size={15} aria-hidden="true" />
-                    Edit profile
+                    <Pencil size={15} aria-hidden="true" /> Edit profile
                   </button>
                 )}
               </div>
             )}
           </div>
 
-          {/* Skills */}
           <div className="profile-skills-block">
             <h3>
               <Wrench size={15} aria-hidden="true" />
@@ -308,7 +317,6 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
                   <field.icon size={14} aria-hidden="true" />
                   {field.label}
                 </label>
-
                 {editMode ? (
                   field.type === 'select' ? (
                     <select
@@ -335,30 +343,25 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
         </div>
       </section>
 
-      {/* Contact + Request bar — only shown when viewing someone else's provider profile */}
       {!isOwnProfile && (
         <section className="profile-contact-bar">
           <div className="profile-contact-bar-inner">
             <div className="profile-contact-buttons">
               <a href={`tel:${data.mobile}`} className="contact-btn contact-call">
-                <Phone size={17} aria-hidden="true" />
-                Call
+                <Phone size={17} aria-hidden="true" /> Call
               </a>
               <a
-                href={`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`}
+                href={`https://wa.me/${data.whatsapp?.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-btn contact-whatsapp"
               >
-                <MessageCircle size={17} aria-hidden="true" />
-                WhatsApp
+                <MessageCircle size={17} aria-hidden="true" /> WhatsApp
               </a>
               <a href={`mailto:${data.email}`} className="contact-btn contact-email">
-                <Mail size={17} aria-hidden="true" />
-                Email
+                <Mail size={17} aria-hidden="true" /> Email
               </a>
             </div>
-
             <button className="profile-request-btn" onClick={onRequest}>
               Request this provider
               <ArrowRight size={16} aria-hidden="true" />
