@@ -286,7 +286,7 @@ export default function Providers() {
 
                 <div className="provider-card-footer">
                   <span className="provider-price">{provider.price}</span>
-                  <Link to={`/providers/${provider.id}`} className="provider-card-btn">
+                  <Link to={`/profile/p${provider.id}`} className="provider-card-btn">
                     View profile
                     <ArrowRight size={14} aria-hidden="true" />
                   </Link>
