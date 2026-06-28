@@ -143,196 +143,66 @@ export default function Profile() {
 /* ===================== CUSTOMER PROFILE ===================== */
 function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel }) {
   const fields = [
-    { key: 'name', label: 'Full name', icon: User, type: 'text' },
-    { key: 'email', label: 'Email address', icon: Mail, type: 'email' },
-    { key: 'mobile', label: 'Mobile number', icon: Phone, type: 'tel' },
-    { key: 'address', label: 'Address', icon: MapPin, type: 'text' },
-    { key: 'dob', label: 'Date of birth', icon: Calendar, type: 'date' },
-    { key: 'gender', label: 'Gender', icon: User, type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
-    { key: 'language', label: 'Preferred language', icon: Globe2, type: 'text' },
-  ];
-
-  return (
-    <section className="profile-section">
-      <div className="profile-card">
-        <div className="profile-card-header">
-          <div className="profile-avatar-wrap">
-            <div className="profile-avatar">
-              {data.image
-                ? <img src={data.image} alt={data.name} />
-                : initials}
-            </div>
-            {editMode && (
-              <button className="profile-avatar-edit" aria-label="Change photo">
-                <Camera size={15} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-
-          <div className="profile-card-headtext">
-            <h1>{editMode ? draft.name : data.name}</h1>
-            <span className="profile-role-tag customer">Customer account</span>
-          </div>
-
-          {isOwnProfile && (
-            <div className="profile-edit-actions">
-              {editMode ? (
-                <>
-                  <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
-                    <X size={15} aria-hidden="true" /> Cancel
-                  </button>
-                  <button className="profile-btn profile-btn-solid" onClick={onSave}>
-                    <Save size={15} aria-hidden="true" /> Save changes
-                  </button>
-                </>
-              ) : (
-                <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                  <Pencil size={15} aria-hidden="true" /> Edit profile
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="profile-fields-grid">
-          {fields.map((field) => (
-            <div className="profile-field" key={field.key}>
-              <label>
-                <field.icon size={14} aria-hidden="true" />
-                {field.label}
-              </label>
-              {editMode ? (
-                field.type === 'select' ? (
-                  <select
-                    value={draft[field.key]}
-                    onChange={(e) => onChange(field.key, e.target.value)}
-                  >
-                    {field.options.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={field.type}
-                    value={draft[field.key]}
-                    onChange={(e) => onChange(field.key, e.target.value)}
-                  />
-                )
-              ) : (
-                <p>{data[field.key] || '—'}</p>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ===================== PROVIDER PROFILE ===================== */
-function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel, onRequest }) {
-  const fields = [
-    { key: 'name', label: 'Full name', icon: User, type: 'text' },
-    { key: 'address', label: 'Location', icon: MapPin, type: 'text' },
-    { key: 'gender', label: 'Gender', icon: User, type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
-    { key: 'mobile', label: 'Mobile number', icon: Phone, type: 'tel' },
-    { key: 'whatsapp', label: 'WhatsApp number', icon: MessageCircle, type: 'tel' },
-    { key: 'email', label: 'Email address', icon: Mail, type: 'email' },
+    { key: 'name',     label: 'Full name',         icon: User,     type: 'text' },
+    { key: 'email',    label: 'Email address',      icon: Mail,     type: 'email' },
+    { key: 'mobile',   label: 'Mobile number',      icon: Phone,    type: 'tel' },
+    { key: 'address',  label: 'Address',            icon: MapPin,   type: 'text' },
+    { key: 'dob',      label: 'Date of birth',      icon: Calendar, type: 'date' },
+    { key: 'gender',   label: 'Gender',             icon: User,     type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
+    { key: 'language', label: 'Preferred language', icon: Globe2,   type: 'text' },
   ];
 
   return (
     <>
-      <section className="profile-section">
-        <div className="profile-card">
-          <div className="profile-card-header">
-            <div className="profile-avatar-wrap">
-              <div className="profile-avatar provider">
-                {data.image
-                  ? <img src={data.image} alt={data.name} />
-                  : initials}
-              </div>
-              {editMode && (
-                <button className="profile-avatar-edit" aria-label="Change photo">
-                  <Camera size={15} aria-hidden="true" />
+      <div className="profile-header-banner">
+        <div className="profile-avatar-wrap">
+          <div className="profile-avatar">
+            {data.image ? <img src={data.image} alt={data.name} /> : initials}
+          </div>
+          {editMode && (
+            <button className="profile-avatar-edit" aria-label="Change photo">
+              <Camera size={14} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+        <h1 className="profile-header-name">{editMode ? draft.name : data.name}</h1>
+        <span className="profile-role-tag customer">Customer account</span>
+        {isOwnProfile && (
+          <div className="profile-header-actions">
+            {editMode ? (
+              <>
+                <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
+                  <X size={15} /> Cancel
                 </button>
-              )}
-            </div>
-
-            <div className="profile-card-headtext">
-              <h1>
-                {editMode ? draft.name : data.name}
-                {data.verified && (
-                  <BadgeCheck size={20} className="profile-verified-icon" aria-label="Verified" />
-                )}
-              </h1>
-              <span className="profile-role-tag provider">Service provider</span>
-              <div className="profile-stats-row">
-                <span>
-                  <Star size={14} className="star-icon" aria-hidden="true" />
-                  <strong>{data.rating}</strong> ({data.reviews} reviews)
-                </span>
-                <span>
-                  <Briefcase size={14} aria-hidden="true" />
-                  {data.jobsDone} jobs completed
-                </span>
-              </div>
-            </div>
-
-            {isOwnProfile && (
-              <div className="profile-edit-actions">
-                {editMode ? (
-                  <>
-                    <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
-                      <X size={15} aria-hidden="true" /> Cancel
-                    </button>
-                    <button className="profile-btn profile-btn-solid" onClick={onSave}>
-                      <Save size={15} aria-hidden="true" /> Save changes
-                    </button>
-                  </>
-                ) : (
-                  <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                    <Pencil size={15} aria-hidden="true" /> Edit profile
-                  </button>
-                )}
-              </div>
+                <button className="profile-btn profile-btn-solid" onClick={onSave}>
+                  <Save size={15} /> Save changes
+                </button>
+              </>
+            ) : (
+              <button className="profile-btn profile-btn-solid" onClick={onEdit}>
+                <Pencil size={15} /> Edit profile
+              </button>
             )}
           </div>
+        )}
+      </div>
 
-          <div className="profile-skills-block">
-            <h3>
-              <Wrench size={15} aria-hidden="true" />
-              Skills & specialties
-            </h3>
-            <div className="profile-skills-list">
-              {data.skills.map((skill) => (
-                <span className="profile-skill-pill" key={skill}>{skill}</span>
-              ))}
-            </div>
-          </div>
-
+      <div className="profile-body">
+        <div className="profile-card">
           <div className="profile-fields-grid">
             {fields.map((field) => (
               <div className="profile-field" key={field.key}>
                 <label>
-                  <field.icon size={14} aria-hidden="true" />
+                  <field.icon size={13} aria-hidden="true" />
                   {field.label}
                 </label>
                 {editMode ? (
                   field.type === 'select' ? (
-                    <select
-                      value={draft[field.key]}
-                      onChange={(e) => onChange(field.key, e.target.value)}
-                    >
-                      {field.options.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
+                    <select value={draft[field.key]} onChange={(e) => onChange(field.key, e.target.value)}>
+                      {field.options.map((opt) => <option key={opt}>{opt}</option>)}
                     </select>
                   ) : (
-                    <input
-                      type={field.type}
-                      value={draft[field.key]}
-                      onChange={(e) => onChange(field.key, e.target.value)}
-                    />
+                    <input type={field.type} value={draft[field.key]} onChange={(e) => onChange(field.key, e.target.value)} />
                   )
                 ) : (
                   <p>{data[field.key] || '—'}</p>
@@ -341,34 +211,127 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
             ))}
           </div>
         </div>
-      </section>
+      </div>
+    </>
+  );
+}
 
-      {!isOwnProfile && (
-        <section className="profile-contact-bar">
-          <div className="profile-contact-bar-inner">
+/* ===================== PROVIDER PROFILE ===================== */
+function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel, onRequest }) {
+  const fields = [
+    { key: 'name',     label: 'Full name',       icon: User,          type: 'text' },
+    { key: 'address',  label: 'Location',        icon: MapPin,        type: 'text' },
+    { key: 'gender',   label: 'Gender',          icon: User,          type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
+    { key: 'mobile',   label: 'Mobile number',   icon: Phone,         type: 'tel' },
+    { key: 'whatsapp', label: 'WhatsApp number', icon: MessageCircle, type: 'tel' },
+    { key: 'email',    label: 'Email address',   icon: Mail,          type: 'email' },
+  ];
+
+  return (
+    <>
+      <div className="profile-header-banner">
+        <div className="profile-avatar-wrap">
+          <div className="profile-avatar provider">
+            {data.image ? <img src={data.image} alt={data.name} /> : initials}
+          </div>
+          {editMode && (
+            <button className="profile-avatar-edit" aria-label="Change photo">
+              <Camera size={14} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+        <h1 className="profile-header-name">
+          {editMode ? draft.name : data.name}
+          {data.verified && <BadgeCheck size={20} className="profile-verified-icon" />}
+        </h1>
+        <span className="profile-role-tag provider">Service provider</span>
+        <div className="profile-stats-row">
+          <span>
+            <Star size={13} className="star-icon" />
+            <strong>{data.rating}</strong>&nbsp;({data.reviews} reviews)
+          </span>
+          <span>
+            <Briefcase size={13} />
+            {data.jobsDone} jobs completed
+          </span>
+        </div>
+        {isOwnProfile && (
+          <div className="profile-header-actions">
+            {editMode ? (
+              <>
+                <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
+                  <X size={15} /> Cancel
+                </button>
+                <button className="profile-btn profile-btn-solid" onClick={onSave}>
+                  <Save size={15} /> Save changes
+                </button>
+              </>
+            ) : (
+              <button className="profile-btn profile-btn-solid" onClick={onEdit}>
+                <Pencil size={15} /> Edit profile
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="profile-body">
+        <div className="profile-card">
+          <p className="profile-card-label">
+            <Wrench size={13} aria-hidden="true" />
+            Skills & specialties
+          </p>
+          <div className="profile-skills-list">
+            {data.skills.map((skill) => (
+              <span className="profile-skill-pill" key={skill}>{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="profile-card">
+          <div className="profile-fields-grid">
+            {fields.map((field) => (
+              <div className="profile-field" key={field.key}>
+                <label>
+                  <field.icon size={13} aria-hidden="true" />
+                  {field.label}
+                </label>
+                {editMode ? (
+                  field.type === 'select' ? (
+                    <select value={draft[field.key]} onChange={(e) => onChange(field.key, e.target.value)}>
+                      {field.options.map((opt) => <option key={opt}>{opt}</option>)}
+                    </select>
+                  ) : (
+                    <input type={field.type} value={draft[field.key]} onChange={(e) => onChange(field.key, e.target.value)} />
+                  )
+                ) : (
+                  <p>{data[field.key] || '—'}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {!isOwnProfile && (
+          <div className="profile-contact-bar">
             <div className="profile-contact-buttons">
               <a href={`tel:${data.mobile}`} className="contact-btn contact-call">
-                <Phone size={17} aria-hidden="true" /> Call
+                <Phone size={16} /> Call
               </a>
-              <a
-                href={`https://wa.me/${data.whatsapp?.replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact-btn contact-whatsapp"
-              >
-                <MessageCircle size={17} aria-hidden="true" /> WhatsApp
+              <a href={`https://wa.me/${data.whatsapp?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="contact-btn contact-whatsapp">
+                <MessageCircle size={16} /> WhatsApp
               </a>
               <a href={`mailto:${data.email}`} className="contact-btn contact-email">
-                <Mail size={17} aria-hidden="true" /> Email
+                <Mail size={16} /> Email
               </a>
             </div>
             <button className="profile-request-btn" onClick={onRequest}>
               Request this provider
-              <ArrowRight size={16} aria-hidden="true" />
+              <ArrowRight size={16} />
             </button>
           </div>
-        </section>
-      )}
+        )}
+      </div>
     </>
   );
 }
