@@ -12,6 +12,7 @@ import Blog from './pages/Blog';
 import Services from './pages/Services';
 import Providers from './pages/Providers';
 import Profile from './pages/Profile';
+import Request from './pages/Request';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/providers" element={<Providers />} />
         <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/request/:providerId" element={<Request />} />
 
 
         {/* other routes like /dashboard, /forgot-password, etc. */}
