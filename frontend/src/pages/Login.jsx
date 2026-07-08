@@ -4,13 +4,13 @@ import './loginregi.css';
 import logo from '../assets/logo.png';
 
 const roles = [
-  { key: 'user', label: 'User', icon: 'ti-user' },
+  { key: 'customer', label: 'User', icon: 'ti-user' },
   { key: 'provider', label: 'Provider', icon: 'ti-tool' },
   { key: 'admin', label: 'Admin', icon: 'ti-shield-lock' },
 ];
 
 export default function Login() {
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('customer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
