@@ -5,6 +5,7 @@ import com.workly.backend.dto.request.RegisterRequest;
 import com.workly.backend.dto.response.AuthResponse;
 import com.workly.backend.entity.Customer;
 import com.workly.backend.entity.ServiceProvider;
+import com.workly.backend.entity.User;
 import com.workly.backend.enums.Role;
 import com.workly.backend.repository.AdminRepository;
 import com.workly.backend.repository.CustomerRepository;
@@ -39,12 +40,30 @@ public class AuthServiceImpl implements AuthService {
         this.jwtService = jwtService;
     }
 
+    /**
+     * Common fields for every user.
+     * Demonstrates Inheritance + Polymorphism.
+     */
+    private void populateCommonFields(User user,
+                                      RegisterRequest request,
+                                      String encodedPassword) {
+
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPassword(encodedPassword);
+        user.setRole(request.getRole());
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+    }
+
     @Override
     public AuthResponse register(RegisterRequest request) {
 
         // Check duplicate email
         if (customerRepository.existsByEmail(request.getEmail())
-                || providerRepository.existsByEmail(request.getEmail())) {
+                || providerRepository.existsByEmail(request.getEmail())
+                || adminRepository.existsByEmail(request.getEmail())) {
 
             return new AuthResponse(
                     null,
@@ -60,18 +79,13 @@ public class AuthServiceImpl implements AuthService {
 
             Customer customer = new Customer();
 
-            customer.setFullName(request.getFullName());
-            customer.setEmail(request.getEmail());
-            customer.setPassword(encodedPassword);
+            populateCommonFields(customer, request, encodedPassword);
+
             customer.setPhoneNumber(request.getPhoneNumber());
             customer.setAddress(request.getAddress());
             customer.setGender(request.getGender());
-            customer.setRole(Role.CUSTOMER);
-            customer.setCreatedAt(LocalDateTime.now());
-            customer.setUpdatedAt(LocalDateTime.now());
 
             customerRepository.save(customer);
-
         }
 
         // Register Service Provider
@@ -79,21 +93,17 @@ public class AuthServiceImpl implements AuthService {
 
             ServiceProvider provider = new ServiceProvider();
 
-            provider.setFullName(request.getFullName());
-            provider.setEmail(request.getEmail());
-            provider.setPassword(encodedPassword);
+            populateCommonFields(provider, request, encodedPassword);
+
             provider.setPhoneNumber(request.getPhoneNumber());
             provider.setAddress(request.getAddress());
             provider.setGender(request.getGender());
-            provider.setRole(Role.PROVIDER);
+
             provider.setVerified(false);
             provider.setSkills("");
             provider.setServices(new ArrayList<>());
-            provider.setCreatedAt(LocalDateTime.now());
-            provider.setUpdatedAt(LocalDateTime.now());
 
             providerRepository.save(provider);
-
         }
 
         return new AuthResponse(
@@ -105,10 +115,52 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
 
-        return new AuthResponse(
-                null,
-                "Login functionality will be implemented with JWT."
-        );
-    }
+        String token;
 
+        switch (request.getRole()) {
+
+            case CUSTOMER -> {
+
+                Customer customer = customerRepository
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+                if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
+                    throw new RuntimeException("Invalid password");
+                }
+
+                token = jwtService.generateToken(customer.getEmail(), customer.getRole().name());
+            }
+
+            case PROVIDER -> {
+
+                ServiceProvider provider = providerRepository
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() -> new RuntimeException("Provider not found"));
+
+                if (!passwordEncoder.matches(request.getPassword(), provider.getPassword())) {
+                    throw new RuntimeException("Invalid password");
+                }
+
+                token = jwtService.generateToken(provider.getEmail(), provider.getRole().name());
+            }
+
+            case ADMIN -> {
+
+                var admin = adminRepository
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+                if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
+                    throw new RuntimeException("Invalid password");
+                }
+
+                token = jwtService.generateToken(admin.getEmail(), admin.getRole().name());
+            }
+
+            default -> throw new RuntimeException("Invalid role");
+        }
+
+        return new AuthResponse(token, "Login Successful");
+    }
 }
