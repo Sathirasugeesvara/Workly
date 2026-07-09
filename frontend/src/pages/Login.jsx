@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import './loginregi.css';
 import logo from '../assets/logo.png';
+import { loginUser } from '../services/authService';
 
 const roles = [
   { key: 'customer', label: 'User', icon: 'ti-user' },
@@ -10,6 +11,9 @@ const roles = [
 ];
 
 export default function Login() {
+
+  const navigate = useNavigate();
+
   const [role, setRole] = useState('customer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,25 +23,74 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!email || !password) {
-      setError('Please enter your email and password.');
-      return;
+        setError("Please enter your email and password.");
+        return;
     }
 
     setLoading(true);
+
     try {
-      // TODO: replace with real authentication call
-      console.log('Login attempt:', { role, email, password, remember });
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-    } catch (err) {
-      setError('Unable to sign in. Please check your credentials and try again.');
+
+        const userRole =
+            role === "customer"
+                ? "CUSTOMER"
+                : role === "provider"
+                ? "PROVIDER"
+                : "ADMIN";
+
+        const response = await loginUser({
+
+            email: email,
+            password: password,
+            role: userRole
+
+        });
+
+        // Save JWT
+        localStorage.setItem("token", response.data.token);
+
+        // Save logged in user role
+        localStorage.setItem("role", userRole);
+
+        alert(response.data.message);
+
+        switch (role) {
+
+    case "customer":
+        navigate("/customer/dashboard");
+        break;
+
+    case "provider":
+        navigate("/provider/dashboard");
+        break;
+
+    case "admin":
+        navigate("/admin/dashboard");
+        break;
+
+    default:
+        navigate("/");
+}
+
+    } catch (error) {
+
+        setError(
+            error.response?.data?.message ||
+            "Invalid Email or Password"
+        );
+
     } finally {
-      setLoading(false);
+
+        setLoading(false);
+
     }
-  };
+
+};
 
   return (
     <div className="login-page">
