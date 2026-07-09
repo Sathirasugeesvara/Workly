@@ -13,6 +13,10 @@ import Services from './pages/Services';
 import Providers from './pages/Providers';
 import Profile from './pages/Profile';
 import Request from './pages/Request';
+import CustomerDashboard from "./pages/CustomerDashboard";
+import ProviderDashboard from "./pages/ProviderDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -32,6 +36,33 @@ function App() {
         <Route path="/providers" element={<Providers />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/request/:providerId" element={<Request />} />
+        
+        <Route
+            path="/customer/dashboard"
+            element={
+                <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+                    <CustomerDashboard />
+                </ProtectedRoute>
+            }
+        />
+
+        <Route
+            path="/provider/dashboard"
+            element={
+                <ProtectedRoute allowedRoles={["PROVIDER"]}>
+                    <ProviderDashboard />
+                </ProtectedRoute>
+            }
+        />
+
+        <Route
+            path="/admin/dashboard"
+            element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <AdminDashboard />
+                </ProtectedRoute>
+            }
+        />
 
 
         {/* other routes like /dashboard, /forgot-password, etc. */}
