@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from 'react';
 import './loginregi.css';
 import logo from '../assets/logo.png';
+import { registerUser } from "../services/authService";
 
 const roles = [
   { key:'customer', label: 'User', icon: 'ti-user' },
@@ -9,48 +10,92 @@ const roles = [
 ];
 
 export default function Register() {
+
+  const navigate = useNavigate();
+  
   const [role, setRole] = useState('customer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [gender, setGender] = useState('MALE');
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
 
-    if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
-      return;
+    e.preventDefault();
+    setError("");
+
+    if (
+        !name ||
+        !email ||
+        !password ||
+        !confirmPassword ||
+        !phoneNumber ||
+        !address
+    ) {
+        setError("Please fill in all fields.");
+        return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
+        setError("Passwords do not match.");
+        return;
     }
 
     if (!agree) {
-      setError('Please agree to the terms and conditions.');
-      return;
+        setError("Please agree to the Terms & Conditions.");
+        return;
     }
 
     setLoading(true);
+
     try {
-      // TODO: replace with real registration call
-      // Additional role-specific fields (e.g. business details, skills,
-      // certifications for providers) can be appended here later.
-      console.log('Register attempt:', { role, name, email, password });
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-    } catch (err) {
-      setError('Unable to create account. Please try again.');
+
+        const response = await registerUser({
+
+            fullName: name,
+            email: email,
+            password: password,
+            phoneNumber: phoneNumber,
+            address: address,
+            gender: gender,
+            role: role === "customer"
+                ? "CUSTOMER"
+                : "PROVIDER"
+
+        });
+
+        alert(response.data.message);
+        navigate("/login");
+
+        setName("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setPhoneNumber("");
+        setAddress("");
+        setGender("MALE");
+
+    } catch (error) {
+
+        setError(
+            error.response?.data?.message ||
+            "Registration Failed"
+        );
+
     } finally {
-      setLoading(false);
+
+        setLoading(false);
+
     }
-  };
+
+};
 
   return (
     <div className="login-page">
@@ -210,11 +255,56 @@ export default function Register() {
               </div>
             </div>
 
-            {/*
-              TODO (future update): role-specific fields go here.
-              e.g. for 'provider' -> service category, NIC, certifications,
-              business address, etc. for 'user' -> phone, address, etc.
-            */}
+            <div className="login-field">
+              <label htmlFor="phoneNumber">Phone Number</label>
+
+              <div className="input-wrap">
+                <i className="ti ti-phone"></i>
+
+                <input
+                  id="phoneNumber"
+                  type="text"
+                  placeholder="0771234567"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="login-field">
+              <label htmlFor="address">Address</label>
+
+              <div className="input-wrap">
+                <i className="ti ti-map-pin"></i>
+
+                <input
+                  id="address"
+                  type="text"
+                  placeholder="Colombo"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="login-field">
+              <label htmlFor="gender">Gender</label>
+              <div className="input-wrap">
+                <i className="ti ti-gender-bigender" aria-hidden="true"></i>
+                <select
+                  id="gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="login-select"
+                >
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+            </div>
+
+
 
             <div className="login-options terms-row">
               <label>
