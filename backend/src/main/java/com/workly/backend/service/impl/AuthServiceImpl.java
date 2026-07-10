@@ -3,15 +3,24 @@ package com.workly.backend.service.impl;
 import com.workly.backend.dto.request.LoginRequest;
 import com.workly.backend.dto.request.RegisterRequest;
 import com.workly.backend.dto.response.AuthResponse;
+import com.workly.backend.dto.response.UserProfileResponse;
+import com.workly.backend.entity.Admin;
 import com.workly.backend.entity.Customer;
 import com.workly.backend.entity.ServiceProvider;
 import com.workly.backend.entity.User;
 import com.workly.backend.enums.Role;
+import com.workly.backend.exception.EmailAlreadyExistsException;
+import com.workly.backend.exception.InvalidCredentialsException;
+import com.workly.backend.exception.UserNotFoundException;
 import com.workly.backend.repository.AdminRepository;
 import com.workly.backend.repository.CustomerRepository;
 import com.workly.backend.repository.ServiceProviderRepository;
+import com.workly.backend.security.CustomUserDetails;
 import com.workly.backend.security.JwtService;
 import com.workly.backend.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final CustomerRepository customerRepository;
@@ -27,22 +37,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthServiceImpl(CustomerRepository customerRepository,
-                           ServiceProviderRepository providerRepository,
-                           AdminRepository adminRepository,
-                           PasswordEncoder passwordEncoder,
-                           JwtService jwtService) {
-
-        this.customerRepository = customerRepository;
-        this.providerRepository = providerRepository;
-        this.adminRepository = adminRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
-
     /**
-     * Common fields for every user.
-     * Demonstrates Inheritance + Polymorphism.
+     * Populate common user fields.
+     * Demonstrates Inheritance + Runtime Polymorphism.
      */
     private void populateCommonFields(User user,
                                       RegisterRequest request,
@@ -60,21 +57,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
 
-        // Check duplicate email
         if (customerRepository.existsByEmail(request.getEmail())
                 || providerRepository.existsByEmail(request.getEmail())
                 || adminRepository.existsByEmail(request.getEmail())) {
 
-            return new AuthResponse(
-                    null,
-                    "Email already exists."
-            );
+            throw new EmailAlreadyExistsException("Email already exists.");
         }
 
-        // Encrypt password
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        // Register Customer
         if (request.getRole() == Role.CUSTOMER) {
 
             Customer customer = new Customer();
@@ -85,11 +76,12 @@ public class AuthServiceImpl implements AuthService {
             customer.setAddress(request.getAddress());
             customer.setGender(request.getGender());
 
-            customerRepository.save(customer);
-        }
+            customer.setCustomerId(null);      // Auto-generate later
+            customer.setProfilePicture("default-profile.png");
 
-        // Register Service Provider
-        else if (request.getRole() == Role.PROVIDER) {
+            customerRepository.save(customer);
+
+        } else if (request.getRole() == Role.PROVIDER) {
 
             ServiceProvider provider = new ServiceProvider();
 
@@ -99,17 +91,22 @@ public class AuthServiceImpl implements AuthService {
             provider.setAddress(request.getAddress());
             provider.setGender(request.getGender());
 
+            provider.setProviderId(null);      // Auto-generate later
+            provider.setProfilePicture("default-profile.png");
+
             provider.setVerified(false);
-            provider.setSkills("");
+            provider.setSkills(new ArrayList<>());
             provider.setServices(new ArrayList<>());
 
             providerRepository.save(provider);
+
         }
 
         return new AuthResponse(
                 null,
                 "Registration Successful"
         );
+
     }
 
     @Override
@@ -123,44 +120,90 @@ public class AuthServiceImpl implements AuthService {
 
                 Customer customer = customerRepository
                         .findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Customer not found"));
+                        .orElseThrow(() ->
+                                new UserNotFoundException("Customer not found"));
 
-                if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-                    throw new RuntimeException("Invalid password");
+                if (!passwordEncoder.matches(
+                        request.getPassword(),
+                        customer.getPassword())) {
+
+                    throw new InvalidCredentialsException("Invalid password");
                 }
 
-                token = jwtService.generateToken(customer.getEmail(), customer.getRole().name());
+                token = jwtService.generateToken(
+                        customer.getEmail(),
+                        customer.getRole().name());
+
             }
 
             case PROVIDER -> {
 
                 ServiceProvider provider = providerRepository
                         .findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Provider not found"));
+                        .orElseThrow(() ->
+                                new UserNotFoundException("Provider not found"));
 
-                if (!passwordEncoder.matches(request.getPassword(), provider.getPassword())) {
-                    throw new RuntimeException("Invalid password");
+                if (!passwordEncoder.matches(
+                        request.getPassword(),
+                        provider.getPassword())) {
+
+                    throw new InvalidCredentialsException("Invalid password");
                 }
 
-                token = jwtService.generateToken(provider.getEmail(), provider.getRole().name());
+                token = jwtService.generateToken(
+                        provider.getEmail(),
+                        provider.getRole().name());
+
             }
 
             case ADMIN -> {
 
-                var admin = adminRepository
+                Admin admin = adminRepository
                         .findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Admin not found"));
+                        .orElseThrow(() ->
+                                new UserNotFoundException("Admin not found"));
 
-                if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-                    throw new RuntimeException("Invalid password");
+                if (!passwordEncoder.matches(
+                        request.getPassword(),
+                        admin.getPassword())) {
+
+                    throw new InvalidCredentialsException("Invalid password");
                 }
 
-                token = jwtService.generateToken(admin.getEmail(), admin.getRole().name());
+                token = jwtService.generateToken(
+                        admin.getEmail(),
+                        admin.getRole().name());
+
             }
 
-            default -> throw new RuntimeException("Invalid role");
+            default -> throw new InvalidCredentialsException("Invalid role");
+
         }
 
-        return new AuthResponse(token, "Login Successful");
+        return new AuthResponse(
+                token,
+                "Login Successful"
+        );
+
     }
+
+    @Override
+    public UserProfileResponse getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        User user = userDetails.getUser();
+
+        return new UserProfileResponse(
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole()
+        );
+
+    }
+
 }

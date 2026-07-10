@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import './loginregi.css';
 import logo from '../assets/logo.png';
 import { loginUser } from '../services/authService';
+import { useEffect } from "react";
 
 const roles = [
   { key: 'customer', label: 'User', icon: 'ti-user' },
@@ -19,8 +20,22 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+
+    const message = sessionStorage.getItem("sessionExpired");
+
+    if (message) {
+
+        setError(message);
+
+        sessionStorage.removeItem("sessionExpired");
+
+    }
+
+}, []);
 
   const handleSubmit = async (e) => {
 
@@ -227,7 +242,7 @@ export default function Login() {
                 />
                 Remember me
               </label>
-              <a href="/forgot-password">Forgot password?</a>
+              <Link to="/forgot-password">Forgot password?</Link>
             </div>
 
             <button type="submit" className="login-button" disabled={loading}>

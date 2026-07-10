@@ -17,6 +17,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path="/providers" element={<Providers />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/request/:providerId" element={<Request />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
         
         <Route
             path="/customer/dashboard"
