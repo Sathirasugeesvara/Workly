@@ -9,6 +9,14 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+/**
+ * Abstract parent class for all system users.
+ *
+ * OOP Concepts:
+ * - Abstraction
+ * - Inheritance
+ * - Encapsulation
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +24,9 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public abstract class User {
 
+    /**
+     * Common user information
+     */
     protected String fullName;
 
     protected String email;
@@ -24,6 +35,9 @@ public abstract class User {
 
     protected Role role;
 
+    /**
+     * Audit Fields
+     */
     protected LocalDateTime createdAt;
 
     protected LocalDateTime updatedAt;

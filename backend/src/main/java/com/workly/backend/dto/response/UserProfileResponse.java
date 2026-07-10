@@ -1,19 +1,22 @@
 package com.workly.backend.dto.response;
 
+import com.workly.backend.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Authentication Response DTO
+ * Logged-in User Profile Response
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
+public class UserProfileResponse {
 
-    private String token;
+    private String fullName;
 
-    private String message;
+    private String email;
+
+    private Role role;
 
 }

@@ -465,3 +465,73 @@
 .nav-logout {
   color: #f87171;
 }
+/* ===================== NAV AVATAR (profile pic / empty state) ===================== */
+.nav-avatar-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  line-height: 0;
+}
+
+.nav-avatar-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 152, 0, 0.35);
+  transition: border-color 0.2s;
+}
+
+.nav-avatar-link:hover .nav-avatar-img {
+  border-color: #ff6a00;
+}
+
+.nav-avatar-empty {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  color: #9a9a9a;
+  font-size: 18px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.nav-avatar-link:hover .nav-avatar-empty {
+  border-color: #ff9800;
+  color: #ff9800;
+}
+
+/* smaller variant used inside the mobile menu row */
+.nav-avatar-sm-img,
+.nav-avatar-sm-empty {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nav-avatar-sm-img {
+  object-fit: cover;
+  border: 1px solid rgba(255, 152, 0, 0.35);
+}
+
+.nav-avatar-sm-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #9a9a9a;
+  font-size: 13px;
+}
+
+.nav-user-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}

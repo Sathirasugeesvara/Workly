@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository for Customer collection.
+ */
 @Repository
 public interface CustomerRepository extends MongoRepository<Customer, String> {
 

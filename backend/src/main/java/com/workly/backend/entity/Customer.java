@@ -9,6 +9,15 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/**
+ * Customer Entity
+ *
+ * Inherits common user information from User.
+ *
+ * OOP Concepts:
+ * - Inheritance
+ * - Encapsulation
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +29,10 @@ public class Customer extends User {
     @Id
     private String id;
 
+    /**
+     * Business Customer ID
+     * Example: CUS000001
+     */
     private String customerId;
 
     private String phoneNumber;

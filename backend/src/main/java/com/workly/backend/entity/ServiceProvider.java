@@ -11,6 +11,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+/**
+ * Service Provider Entity
+ *
+ * Represents professionals who provide services
+ * through the Workly platform.
+ *
+ * OOP Concepts:
+ * - Inheritance
+ * - Encapsulation
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,6 +32,10 @@ public class ServiceProvider extends User {
     @Id
     private String id;
 
+    /**
+     * Example:
+     * PRO000001
+     */
     private String providerId;
 
     private String phoneNumber;
@@ -32,10 +46,19 @@ public class ServiceProvider extends User {
 
     private Gender gender;
 
-    private String skills;
+    /**
+     * Provider Skills
+     */
+    private List<String> skills;
 
+    /**
+     * Provider Verification
+     */
     private boolean verified;
 
+    /**
+     * Services offered
+     */
     private List<String> services;
 
 }

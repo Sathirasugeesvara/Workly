@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository for Admin collection.
+ */
 @Repository
 public interface AdminRepository extends MongoRepository<Admin, String> {
 

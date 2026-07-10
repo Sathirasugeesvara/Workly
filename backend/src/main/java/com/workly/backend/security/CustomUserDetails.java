@@ -16,11 +16,16 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
+    /**
+     * Return logged user's role
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
         return List.of(
-                new SimpleGrantedAuthority(user.getRole().name())
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
         );
+
     }
 
     @Override
@@ -31,6 +36,13 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    /**
+     * Access underlying User object
+     */
+    public User getUser() {
+        return user;
     }
 
     @Override

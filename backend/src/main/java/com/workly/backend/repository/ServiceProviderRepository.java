@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository for Service Provider collection.
+ */
 @Repository
 public interface ServiceProviderRepository extends MongoRepository<ServiceProvider, String> {
 
