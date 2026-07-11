@@ -1,0 +1,230 @@
+* {
+  box-sizing: border-box;
+}
+
+.apv-page {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f5f5f7;
+  min-height: 70vh;
+}
+
+.apv-header {
+  background: #0a0a0a;
+  background-image:
+    radial-gradient(circle at 15% 30%, rgba(255, 154, 0, 0.2), transparent 50%),
+    radial-gradient(circle at 85% 70%, rgba(255, 200, 0, 0.14), transparent 50%);
+  padding: 44px 48px 36px;
+  color: #fff;
+}
+
+.apv-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff9800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.apv-header h1 {
+  font-size: 27px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.apv-header p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+.apv-body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.apv-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+  color: #b45309;
+  font-size: 12.5px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.apv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.apv-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  padding: 22px;
+}
+
+.apv-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.apv-avatar {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffd000, #ff9800, #ff6a00);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.apv-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.apv-card-main h3 {
+  font-size: 15.5px;
+  font-weight: 700;
+  margin: 0 0 2px;
+  color: #0a0a0a;
+}
+
+.apv-card-main p {
+  font-size: 12.5px;
+  color: #8a8a8a;
+  margin: 0;
+}
+
+.apv-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  white-space: nowrap;
+}
+
+.apv-card-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 14px;
+}
+
+.apv-card-meta span {
+  display: block;
+  font-size: 11px;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.apv-card-meta strong {
+  font-size: 13px;
+  color: #1a1a1a;
+}
+
+.apv-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.apv-skill-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 152, 0, 0.08);
+  color: #b45309;
+}
+
+.apv-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.apv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+
+.apv-btn-solid {
+  background: linear-gradient(135deg, #ffd000 0%, #ff9800 55%, #ff6a00 100%);
+  color: #fff;
+}
+
+.apv-btn-solid:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.3);
+}
+
+.apv-btn-danger {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #b91c1c;
+}
+
+.apv-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.apv-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.apv-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #8a8a8a;
+  font-size: 14px;
+}
+
+.apv-empty i {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 10px;
+  color: #22c55e;
+}
+
+@media (max-width: 560px) {
+  .apv-header { padding: 32px 20px 28px; }
+  .apv-body { padding: 24px 16px 48px; }
+  .apv-card-top { flex-wrap: wrap; }
+  .apv-actions { flex-direction: column-reverse; }
+  .apv-btn { justify-content: center; width: 100%; }
+}

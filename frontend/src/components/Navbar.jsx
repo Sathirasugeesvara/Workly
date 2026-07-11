@@ -44,27 +44,27 @@ export default function Navbar() {
     ];
   } else if (userRole === 'provider') {
     navItems = [
-      { path: '/', label: 'Home' },
+      { path: '/provider/dashboard', label: 'Home' },//constructing..........................................................................................
       { path: '/aibot', label: 'Help with AI' },
-      { path: '/about', label: 'About' },
-      { path: '/contact', label: 'Contact' },
-      { path: '/history', label: 'History' },
+      { path: '/dashboard', label: 'Booking requests' },//constructing..........................................................................................
+      { path: '/history', label: 'History' },//constructing..........................................................................................
     ];
   } else if (userRole === 'admin') {
     navItems = [
-      { path: '/', label: 'Home' },
-      { path: '/dashboard', label: 'Users' },
-      { path: '/dashboard', label: 'Providers' },
-      { path: '/dashboard', label: 'Pending verifications' },
+      { path: '/admin/dashboard', label: 'Home' },
+      { path: '/admin/pending-verifications', label: 'Pending verifications' },
+      { path: '/admin/customers', label: 'Customers' },
+      { path: '/admin/providers', label: 'Providers' },
+      { path: '/admin/services', label: 'Services' },
     ];
   } else {
     // customer
     navItems = [
-      { path: '/', label: 'Home' },
+      { path: '/customer/dashboard', label: 'Home' },//constructing..........................................................................................
       { path: '/services', label: 'Services' },
-      { path: '/providers', label: 'Find providers' },
-      { path: '/aibot', label: 'Help with AI' },
-      { path: '/history', label: 'History' },
+      { path: '/providers', label: 'Providers' },
+      { path: '/aibot', label: 'Chat with AI' },
+      { path: '/history', label: 'Booking History' },//constructing..........................................................................................
     ];
   }
 
@@ -134,7 +134,7 @@ export default function Navbar() {
             <Link to="/profile/me" className="nav-avatar-link" aria-label="My profile">
               <Avatar />
             </Link>
-            <button className="nav-btn nav-btn-outline" onClick={handleLogout}>
+            <button className="nav-btn nav-btn-logout" onClick={handleLogout}>
               <i className="ti ti-logout" aria-hidden="true"></i>
               Logout
             </button>

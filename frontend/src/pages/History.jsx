@@ -9,7 +9,6 @@ import {
   rejectBooking,
   completeBooking,
 } from '../services/bookingService';
-import './Dashboard.css';
 import './History.css';
 
 const DEMO_CUSTOMER = [

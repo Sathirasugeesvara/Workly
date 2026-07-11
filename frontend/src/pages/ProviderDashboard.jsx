@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getProviderJobs, acceptBooking, rejectBooking, completeBooking } from '../services/bookingService';
-import './Dashboard.css';
+import './ProviderDashboard.css';
 
 const DEMO_JOBS = [
   { id: 'WK-10301', service: 'Switchboard repair', customer: 'Amaya Wickrama', date: '2026-07-11', status: 'PENDING', amount: 2800 },
