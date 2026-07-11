@@ -13,11 +13,20 @@ import Services from './pages/Services';
 import Providers from './pages/Providers';
 import Profile from './pages/Profile';
 import Request from './pages/Request';
-import CustomerDashboard from "./pages/CustomerDashboard";
-import ProviderDashboard from "./pages/ProviderDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+import History from './pages/History';
 import Unauthorized from "./pages/Unauthorized";
+
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPendingVerifications from './pages/AdminPendingVerifications';
+import AdminCustomers from './pages/AdminCustomers';
+import AdminProviders from './pages/AdminProviders';
+import AdminServices from './pages/AdminServices';
+
+import CustomerDashboard from "./pages/CustomerDashboard";
+
+import ProviderDashboard from "./pages/ProviderDashboard";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -40,37 +49,81 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         
         <Route
-            path="/customer/dashboard"
-            element={
-                <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-                    <CustomerDashboard />
-                </ProtectedRoute>
-            }
-        />
-
-        <Route
-            path="/provider/dashboard"
-            element={
-                <ProtectedRoute allowedRoles={["PROVIDER"]}>
-                    <ProviderDashboard />
-                </ProtectedRoute>
-            }
-        />
-
-        <Route
-            path="/admin/dashboard"
-            element={
-                <ProtectedRoute allowedRoles={["ADMIN"]}>
-                    <AdminDashboard />
-                </ProtectedRoute>
-            }
-        />
-
-
-        {/* other routes like /dashboard, /forgot-password, etc. */}
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
+                  path="/history"
+                  element={
+                    <ProtectedRoute>
+                      <History />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/customer/dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+                      <CustomerDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/provider/dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["PROVIDER"]}>
+                      <ProviderDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/admin/pending-verifications"
+                  element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                      <AdminPendingVerifications />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/admin/customers"
+                  element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                      <AdminCustomers />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/admin/providers"
+                  element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                      <AdminProviders />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                <Route
+                  path="/admin/services"
+                  element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                      <AdminServices />
+                    </ProtectedRoute>
+                  }
+                />
+        
+                {/* other routes like /forgot-password, etc. */}
+              </Routes>
+            </BrowserRouter>
+          );
+        }
+        
+        export default App;

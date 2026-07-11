@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getMyBookings, cancelBooking } from '../services/bookingService';
-import './Dashboard.css';
+import './CustomerDashboard.css';
 
 const DEMO_BOOKINGS = [
   { id: 'WK-10245', service: 'AC servicing', provider: 'Roshan Jayasuriya', date: '2026-07-14', status: 'PENDING', amount: 3500 },
