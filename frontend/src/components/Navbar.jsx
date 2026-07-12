@@ -44,10 +44,10 @@ export default function Navbar() {
     ];
   } else if (userRole === 'provider') {
     navItems = [
-      { path: '/provider/dashboard', label: 'Home' },//constructing..........................................................................................
+      { path: '/provider/dashboard', label: 'Home' },
       { path: '/aibot', label: 'Help with AI' },
-      { path: '/dashboard', label: 'Booking requests' },//constructing..........................................................................................
-      { path: '/history', label: 'History' },//constructing..........................................................................................
+      { path: '/provider/booking-requests', label: 'Booking requests' },
+      { path: '/provider/booking-history', label: 'History' },
     ];
   } else if (userRole === 'admin') {
     navItems = [
