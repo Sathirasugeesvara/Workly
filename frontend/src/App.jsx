@@ -9,10 +9,13 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Blog from './pages/Blog';
+import Careers from './pages/Careers';
+import HowItWorks from './pages/HowItWorks';
 import Services from './pages/Services';
 import Providers from './pages/Providers';
 import Profile from './pages/Profile';
-import Request from './pages/Request';
+import ProviderReviews from './pages/ProviderReviews';
+import MakeRequest from './pages/MakeRequest';
 import History from './pages/History';
 import Unauthorized from "./pages/Unauthorized";
 
@@ -25,6 +28,8 @@ import AdminServices from './pages/AdminServices';
 import CustomerDashboard from "./pages/CustomerDashboard";
 
 import ProviderDashboard from "./pages/ProviderDashboard";
+import ProviderBookingRequests from "./pages/ProviderBookingRequests";
+import BookingHistory from "./pages/BookingHistory";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -42,16 +47,19 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/cookies" element={<Cookies />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/services" element={<Services />} />
         <Route path="/providers" element={<Providers />} />
         <Route path="/profile/:id" element={<Profile />} />
-        <Route path="/request/:providerId" element={<Request />} />
+        <Route path="/profile/:id/reviews" element={<ProviderReviews />} />
+        <Route path="/request/:providerId" element={<MakeRequest />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         
-        <Route
+                <Route
                   path="/history"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute allowedRoles={["CUSTOMER"]}>
                       <History />
                     </ProtectedRoute>
                   }
@@ -65,12 +73,39 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
+                <Route
+                  path="/request/:providerId"
+                  element={
+                    <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+                      <MakeRequest />
+                    </ProtectedRoute>
+                  }
+                />
         
                 <Route
                   path="/provider/dashboard"
                   element={
                     <ProtectedRoute allowedRoles={["PROVIDER"]}>
                       <ProviderDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/provider/booking-requests"
+                  element={
+                    <ProtectedRoute allowedRoles={["PROVIDER"]}>
+                      <ProviderBookingRequests />
+                    </ProtectedRoute>
+                  }
+                />
+                
+                <Route
+                  path="/provider/booking-history"
+                  element={
+                    <ProtectedRoute allowedRoles={["PROVIDER"]}>
+                      <BookingHistory />
                     </ProtectedRoute>
                   }
                 />

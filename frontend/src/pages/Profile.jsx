@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Phone,
   MessageCircle,
@@ -17,9 +17,11 @@ import {
   User,
   Wrench,
   ArrowRight,
+  Trash2,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { getMyProfile, getUserById, updateMyProfile, deleteMyAccount } from '../services/userService';
 import './Profile.css';
 
 const mockProviders = {
@@ -50,8 +52,7 @@ const mockCustomers = {
   },
 };
 
-// TODO: replace with real auth context — current logged-in user id
-const CURRENT_USER_ID = 'c1';
+// Demo fallback data, used only if the backend call fails (e.g. during dev).
 
 const notFoundData = {
   id: '404',
@@ -70,32 +71,119 @@ export default function Profile() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // TODO: replace with fetch('/api/users/' + id) once backend ready
-  const initialData =
-    id?.startsWith('p')
-      ? (mockProviders[id] || notFoundData)
-      : (mockCustomers[id] || notFoundData);
+  // "/profile/me" is the logged-in user's own profile; any other id is a
+  // public profile lookup (e.g. viewing a provider from the Providers page).
+  const isOwnProfile = id === 'me';
 
-  const isOwnProfile = id === CURRENT_USER_ID;
-
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [usingDemo, setUsingDemo] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [draft, setDraft] = useState(initialData);
+  const [draft, setDraft] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      setLoadError(false);
+      try {
+        const res = isOwnProfile ? await getMyProfile() : await getUserById(id);
+        if (cancelled) return;
+        setData(res.data);
+        setDraft(res.data);
+        setUsingDemo(false);
+      } catch {
+        if (cancelled) return;
+        // Backend not reachable yet — fall back to mock data so the page
+        // still renders something sensible during development.
+        const fallback =
+          id?.startsWith('p') ? (mockProviders[id] || notFoundData) : (mockCustomers[id] || notFoundData);
+        if (isOwnProfile && !mockCustomers.c1) {
+          setLoadError(true);
+        } else {
+          setData(isOwnProfile ? mockCustomers.c1 : fallback);
+          setDraft(isOwnProfile ? mockCustomers.c1 : fallback);
+          setUsingDemo(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isOwnProfile]);
 
   const handleChange = (field, value) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    // TODO: PUT /api/users/:id with draft payload
-    setData(draft);
-    setEditMode(false);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      if (usingDemo) {
+        // No backend to persist to yet — just update local state.
+        setData(draft);
+        setEditMode(false);
+      } else {
+        const res = await updateMyProfile(draft);
+        setData(res.data);
+        setEditMode(false);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not save changes. Try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
     setDraft(data);
     setEditMode(false);
   };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('Delete your account? This cannot be undone.')) return;
+    setDeleting(true);
+    try {
+      if (!usingDemo) {
+        await deleteMyAccount();
+      }
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      navigate('/');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not delete account. Try again.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="profile-page">
+        <Navbar />
+        <div className="profile-loading">Loading profile...</div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (loadError || !data) {
+    return (
+      <div className="profile-page">
+        <Navbar />
+        <div className="profile-error">Could not load this profile. Please try again later.</div>
+        <Footer />
+      </div>
+    );
+  }
 
   const initials = data.name
     .split(' ')
@@ -108,6 +196,13 @@ export default function Profile() {
     <div className="profile-page">
       <Navbar />
 
+      {usingDemo && (
+        <div className="profile-demo-notice">
+          <i className="ti ti-info-circle" aria-hidden="true"></i>
+          Showing demo data — connect the users API to load and save real profiles.
+        </div>
+      )}
+
       {data.role === 'customer' ? (
         <CustomerProfile
           data={data}
@@ -119,6 +214,9 @@ export default function Profile() {
           onEdit={() => setEditMode(true)}
           onSave={handleSave}
           onCancel={handleCancel}
+          saving={saving}
+          onDelete={handleDeleteAccount}
+          deleting={deleting}
         />
       ) : (
         <ProviderProfile
@@ -132,6 +230,9 @@ export default function Profile() {
           onSave={handleSave}
           onCancel={handleCancel}
           onRequest={() => navigate(`/request/${data.id}`)}
+          saving={saving}
+          onDelete={handleDeleteAccount}
+          deleting={deleting}
         />
       )}
 
@@ -141,7 +242,7 @@ export default function Profile() {
 }
 
 /* ===================== CUSTOMER PROFILE ===================== */
-function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel }) {
+function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel, saving, onDelete, deleting }) {
   const fields = [
     { key: 'name',     label: 'Full name',         icon: User,     type: 'text' },
     { key: 'email',    label: 'Email address',      icon: Mail,     type: 'email' },
@@ -171,17 +272,22 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
           <div className="profile-header-actions">
             {editMode ? (
               <>
-                <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
+                <button className="profile-btn profile-btn-ghost" onClick={onCancel} disabled={saving}>
                   <X size={15} /> Cancel
                 </button>
-                <button className="profile-btn profile-btn-solid" onClick={onSave}>
-                  <Save size={15} /> Save changes
+                <button className="profile-btn profile-btn-solid" onClick={onSave} disabled={saving}>
+                  <Save size={15} /> {saving ? 'Saving...' : 'Save changes'}
                 </button>
               </>
             ) : (
-              <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                <Pencil size={15} /> Edit profile
-              </button>
+              <>
+                <button className="profile-btn profile-btn-solid" onClick={onEdit}>
+                  <Pencil size={15} /> Edit profile
+                </button>
+                <button className="profile-btn profile-btn-danger" onClick={onDelete} disabled={deleting}>
+                  <Trash2 size={15} /> {deleting ? 'Deleting...' : 'Delete account'}
+                </button>
+              </>
             )}
           </div>
         )}
@@ -217,7 +323,7 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
 }
 
 /* ===================== PROVIDER PROFILE ===================== */
-function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel, onRequest }) {
+function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChange, onEdit, onSave, onCancel, onRequest, saving, onDelete, deleting }) {
   const fields = [
     { key: 'name',     label: 'Full name',       icon: User,          type: 'text' },
     { key: 'address',  label: 'Location',        icon: MapPin,        type: 'text' },
@@ -255,21 +361,30 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
             {data.jobsDone} jobs completed
           </span>
         </div>
+        <Link to={`/profile/${data.id}/reviews`} className="profile-reviews-link">
+          <Star size={13} />
+          View all reviews
+        </Link>
         {isOwnProfile && (
           <div className="profile-header-actions">
             {editMode ? (
               <>
-                <button className="profile-btn profile-btn-ghost" onClick={onCancel}>
+                <button className="profile-btn profile-btn-ghost" onClick={onCancel} disabled={saving}>
                   <X size={15} /> Cancel
                 </button>
-                <button className="profile-btn profile-btn-solid" onClick={onSave}>
-                  <Save size={15} /> Save changes
+                <button className="profile-btn profile-btn-solid" onClick={onSave} disabled={saving}>
+                  <Save size={15} /> {saving ? 'Saving...' : 'Save changes'}
                 </button>
               </>
             ) : (
-              <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                <Pencil size={15} /> Edit profile
-              </button>
+              <>
+                <button className="profile-btn profile-btn-solid" onClick={onEdit}>
+                  <Pencil size={15} /> Edit profile
+                </button>
+                <button className="profile-btn profile-btn-danger" onClick={onDelete} disabled={deleting}>
+                  <Trash2 size={15} /> {deleting ? 'Deleting...' : 'Delete account'}
+                </button>
+              </>
             )}
           </div>
         )}

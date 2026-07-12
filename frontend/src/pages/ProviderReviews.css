@@ -1,0 +1,258 @@
+* {
+  box-sizing: border-box;
+}
+
+.prev-page {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f5f5f7;
+  min-height: 70vh;
+}
+
+.prev-header {
+  background: #0a0a0a;
+  background-image:
+    radial-gradient(circle at 15% 30%, rgba(255, 154, 0, 0.2), transparent 50%),
+    radial-gradient(circle at 85% 70%, rgba(255, 200, 0, 0.14), transparent 50%);
+  padding: 40px 24px 32px;
+  color: #fff;
+}
+
+.prev-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  margin-bottom: 18px;
+  transition: color 0.2s;
+}
+
+.prev-back:hover {
+  color: #ff9800;
+}
+
+.prev-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff9800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.prev-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 20px;
+}
+
+.prev-summary {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  max-width: 720px;
+}
+
+.prev-score {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.prev-score strong {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.prev-score span {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.prev-stars {
+  display: inline-flex;
+  gap: 2px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.prev-stars .filled {
+  color: #ffb300;
+  fill: #ffb300;
+}
+
+.prev-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.prev-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.prev-breakdown-row:hover,
+.prev-breakdown-row.active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.prev-breakdown-row span:first-child {
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.prev-bar-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.prev-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ffd000, #ff6a00);
+  border-radius: 999px;
+}
+
+.prev-bar-count {
+  width: 20px;
+  text-align: right;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ===================== BODY ===================== */
+.prev-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+
+.prev-notice {
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+  color: #b45309;
+  font-size: 12.5px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+
+.prev-clear-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.25);
+  color: #b45309;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.prev-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.prev-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.prev-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.prev-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.prev-card-top strong {
+  display: block;
+  font-size: 13.5px;
+  color: #0a0a0a;
+  margin-bottom: 2px;
+}
+
+.prev-card-top .prev-stars {
+  color: #d0d0d0;
+}
+
+.prev-date {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: #b0b0b0;
+  white-space: nowrap;
+}
+
+.prev-comment {
+  font-size: 13.5px;
+  color: #4a4a4a;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.prev-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: #8a8a8a;
+  font-size: 13.5px;
+}
+
+@media (max-width: 560px) {
+  .prev-header {
+    padding: 32px 20px 28px;
+  }
+
+  .prev-summary {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .prev-card-top {
+    flex-wrap: wrap;
+  }
+
+  .prev-date {
+    margin-left: 48px;
+  }
+}

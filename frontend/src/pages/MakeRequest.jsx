@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import './Request.css';
+import './MakeRequest.css';
 
 const mockProviders = {
   p1:  { id: 'p1',  name: 'Nuwan Perera',        service: 'Electrical',    price: 'Rs. 1,500 / visit', mobile: '+94 71 234 5678', email: 'nuwan.perera@example.com' },
