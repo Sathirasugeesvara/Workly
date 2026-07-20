@@ -6,10 +6,8 @@ import java.util.List;
 
 public interface AdminService {
 
-    AdminResponse getAdminById(String adminId);
+    AdminResponse getCurrentAdmin();
 
     List<AdminResponse> getAllAdmins();
-
-    AdminResponse updateAdmin(String adminId, AdminResponse adminResponse);
 
 }

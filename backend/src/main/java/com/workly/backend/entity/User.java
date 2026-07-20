@@ -6,16 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
 /**
  * Abstract parent class for all system users.
- *
- * OOP Concepts:
- * - Abstraction
- * - Inheritance
- * - Encapsulation
  */
 @Getter
 @Setter
@@ -24,9 +21,6 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public abstract class User {
 
-    /**
-     * Common user information
-     */
     protected String fullName;
 
     protected String email;
@@ -35,11 +29,10 @@ public abstract class User {
 
     protected Role role;
 
-    /**
-     * Audit Fields
-     */
+    @CreatedDate
     protected LocalDateTime createdAt;
 
+    @LastModifiedDate
     protected LocalDateTime updatedAt;
 
 }
