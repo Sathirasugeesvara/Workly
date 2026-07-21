@@ -1,6 +1,5 @@
 package com.workly.backend.entity;
 
-import com.workly.backend.enums.ServiceCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,16 +21,18 @@ public class Service {
     @Id
     private String id;
 
-    private String serviceId;
+    private String serviceId; // e.g. SVC000001
 
-    private String serviceName;
+    private String category; // lowercase slug, e.g. "plumbing"
+
+    private String title;
 
     private String description;
 
-    private ServiceCategory category;
-
-    private double price;
+    private String icon; // lucide-react icon name
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
 }

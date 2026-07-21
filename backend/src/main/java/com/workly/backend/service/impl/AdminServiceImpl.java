@@ -2,6 +2,7 @@ package com.workly.backend.service.impl;
 
 import com.workly.backend.dto.response.AdminResponse;
 import com.workly.backend.entity.Admin;
+import com.workly.backend.exception.UserNotFoundException;
 import com.workly.backend.repository.AdminRepository;
 import com.workly.backend.security.CustomUserDetails;
 import com.workly.backend.service.AdminService;
@@ -29,8 +30,7 @@ public class AdminServiceImpl implements AdminService {
 
         Admin admin = adminRepository
                 .findByEmail(user.getUsername())
-                .orElseThrow(() ->
-                        new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new UserNotFoundException("Admin not found"));
 
         AdminResponse response = new AdminResponse();
 
