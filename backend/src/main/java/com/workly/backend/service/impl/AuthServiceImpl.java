@@ -21,7 +21,6 @@ import com.workly.backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,7 +33,6 @@ public class AuthServiceImpl implements AuthService {
     private final CustomerRepository customerRepository;
     private final ServiceProviderRepository providerRepository;
     private final AdminRepository adminRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     /**
@@ -64,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
             throw new EmailAlreadyExistsException("Email already exists.");
         }
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = request.getPassword();
 
         if (request.getRole() == Role.CUSTOMER) {
 
@@ -76,7 +74,8 @@ public class AuthServiceImpl implements AuthService {
             customer.setAddress(request.getAddress());
             customer.setGender(request.getGender());
 
-            customer.setCustomerId(null);      // Auto-generate later
+            long customerCount = customerRepository.count() + 1;
+            customer.setCustomerId(String.format("CUS%06d", customerCount));      // Auto-generate later
             customer.setProfilePicture("default-profile.png");
 
             customerRepository.save(customer);
@@ -91,7 +90,8 @@ public class AuthServiceImpl implements AuthService {
             provider.setAddress(request.getAddress());
             provider.setGender(request.getGender());
 
-            provider.setProviderId(null);      // Auto-generate later
+            long providerCount = providerRepository.count() + 1;
+            provider.setProviderId(String.format("PRO%06d", providerCount));      // Auto-generate later
             provider.setProfilePicture("default-profile.png");
 
             provider.setVerified(false);
@@ -123,10 +123,7 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(() ->
                                 new UserNotFoundException("Customer not found"));
 
-                if (!passwordEncoder.matches(
-                        request.getPassword(),
-                        customer.getPassword())) {
-
+                if (!request.getPassword().equals(customer.getPassword())) {
                     throw new InvalidCredentialsException("Invalid password");
                 }
 
@@ -143,10 +140,7 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(() ->
                                 new UserNotFoundException("Provider not found"));
 
-                if (!passwordEncoder.matches(
-                        request.getPassword(),
-                        provider.getPassword())) {
-
+                if (!request.getPassword().equals(provider.getPassword())) {
                     throw new InvalidCredentialsException("Invalid password");
                 }
 
@@ -163,10 +157,7 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(() ->
                                 new UserNotFoundException("Admin not found"));
 
-                if (!passwordEncoder.matches(
-                        request.getPassword(),
-                        admin.getPassword())) {
-
+                if (!request.getPassword().equals(admin.getPassword())) {
                     throw new InvalidCredentialsException("Invalid password");
                 }
 

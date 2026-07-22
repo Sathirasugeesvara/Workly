@@ -1,5 +1,7 @@
 package com.workly.backend.controller;
 
+import com.workly.backend.dto.response.BookingResponse;
+import com.workly.backend.service.BookingService;
 import com.workly.backend.dto.request.ProviderSkillsRequest;
 import com.workly.backend.dto.request.ServiceRequest;
 import com.workly.backend.dto.response.AdminCustomerResponse;
@@ -27,6 +29,7 @@ public class AdminController {
     private final CustomerService customerService;
     private final ProviderService providerService;
     private final ServiceCatalogService serviceCatalogService;
+    private final BookingService bookingService;
 
     @GetMapping("/profile")
     public AdminResponse getProfile() {
@@ -115,6 +118,11 @@ public class AdminController {
     @DeleteMapping("/services/{id}")
     public void deleteService(@PathVariable String id) {
         serviceCatalogService.deleteService(id);
+    }
+
+    @GetMapping("/bookings")
+    public List<BookingResponse> getAllBookings() {
+        return bookingService.getAllBookings();
     }
 
 }
