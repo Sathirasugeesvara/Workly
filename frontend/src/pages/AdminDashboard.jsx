@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -7,149 +6,35 @@ import {
   Cell,
   Tooltip,
   Legend,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
 } from 'recharts';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import {
-  getAdminSummary,
-  getBookingStatusBreakdown,
-  getUserGrowth,
-  getCategoryPopularity,
-  getBookingTrend,
-  getRecentBookingsList,
-  getLatestReviews,
-  getPlatformHealth,
+  getAdminProfile,
+  getAdminCustomers,
+  getAdminProviders,
+  getAdminServices,
+  getAdminBookings,
 } from '../services/adminService';
 import './AdminDashboard.css';
 
-/* ---------------------------------------------------------------------- */
-/* Demo data — used per-section whenever the matching endpoint isn't      */
-/* live yet, so the UI is always fully populated while the backend is     */
-/* being built out.                                                       */
-/* ---------------------------------------------------------------------- */
-
-const DEMO_SUMMARY = {
-  adminName: 'Sathira',
-  customers: 1284,
-  providers: 312,
-  totalBookings: 4021,
-  revenue: 6842500,
-  pendingVerifications: 7,
-};
-
-const DEMO_STATUS = [
-  { name: 'Pending', value: 48 },
-  { name: 'Accepted', value: 36 },
-  { name: 'Completed', value: 214 },
-  { name: 'Cancelled', value: 22 },
-];
+const STATUS_ORDER = ['PENDING', 'ACCEPTED', 'COMPLETED', 'CANCELLED'];
 
 const STATUS_COLORS = {
-  Pending: '#ff9800',
-  Accepted: '#6366f1',
-  Completed: '#22c55e',
-  Cancelled: '#ef4444',
+  PENDING: '#ff9800',
+  ACCEPTED: '#6366f1',
+  COMPLETED: '#22c55e',
+  CANCELLED: '#ef4444',
 };
-
-const DEMO_GROWTH = [
-  { month: 'Feb', customers: 780, providers: 190 },
-  { month: 'Mar', customers: 860, providers: 212 },
-  { month: 'Apr', customers: 945, providers: 238 },
-  { month: 'May', customers: 1040, providers: 268 },
-  { month: 'Jun', customers: 1160, providers: 292 },
-  { month: 'Jul', customers: 1284, providers: 312 },
-];
-
-const DEMO_CATEGORIES = [
-  { category: 'Electrical', bookings: 812 },
-  { category: 'Plumbing', bookings: 690 },
-  { category: 'Cleaning', bookings: 604 },
-  { category: 'Repair', bookings: 511 },
-  { category: 'Painting', bookings: 398 },
-  { category: 'Carpentry', bookings: 340 },
-];
-
-function buildDemoTrend() {
-  const days = [];
-  const now = new Date();
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const base = 18 + Math.round(10 * Math.sin(i / 4)) + Math.round(Math.random() * 6);
-    days.push({
-      date: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-      bookings: Math.max(4, base),
-    });
-  }
-  return days;
-}
-
-const DEMO_TREND = buildDemoTrend();
-
-const DEMO_RECENT_BOOKINGS = [
-  { id: 'WK-10412', service: 'Switchboard repair', customer: 'Amaya Wickrama', provider: 'Nimal Perera', date: '2026-07-11', status: 'PENDING', amount: 2800 },
-  { id: 'WK-10409', service: 'Deep house cleaning', customer: 'Ruwan Silva', provider: 'CleanPro Services', date: '2026-07-10', status: 'ACCEPTED', amount: 3200 },
-  { id: 'WK-10405', service: 'Inverter installation', customer: 'Dinesh Kumara', provider: 'Kasun Bandara', date: '2026-07-10', status: 'COMPLETED', amount: 6200 },
-  { id: 'WK-10398', service: 'Lighting installation', customer: 'Ishara Bandara', provider: 'Nimal Perera', date: '2026-07-09', status: 'COMPLETED', amount: 3100 },
-  { id: 'WK-10391', service: 'Leak repair', customer: 'Sanduni Perera', provider: 'Sunil Fernando', date: '2026-07-09', status: 'CANCELLED', amount: 0 },
-  { id: 'WK-10388', service: 'Wall painting', customer: 'Tharindu Rathnayake', provider: 'ColorCraft Painters', date: '2026-07-08', status: 'COMPLETED', amount: 8400 },
-  { id: 'WK-10380', service: 'AC servicing', customer: 'Chamodi Silva', provider: 'Roshan Jayasuriya', date: '2026-07-08', status: 'ACCEPTED', amount: 3500 },
-  { id: 'WK-10375', service: 'Furniture assembly', customer: 'Yohan Perera', provider: 'Kasun Bandara', date: '2026-07-07', status: 'PENDING', amount: 1800 },
-  { id: 'WK-10370', service: 'Tiling work', customer: 'Nadeesha Fonseka', provider: 'BuildRight Masonry', date: '2026-07-06', status: 'COMPLETED', amount: 12500 },
-  { id: 'WK-10362', service: 'Wiring inspection', customer: 'Dilshan Perera', provider: 'Nimal Perera', date: '2026-07-05', status: 'COMPLETED', amount: 1800 },
-];
-
-const DEMO_REVIEWS = [
-  { id: 'RV-2291', customer: 'Amaya Wickrama', provider: 'Nimal Perera', rating: 5, comment: 'Fixed the wiring issue quickly and explained everything clearly.', date: '2026-07-10' },
-  { id: 'RV-2288', customer: 'Ruwan Silva', provider: 'CleanPro Services', rating: 4, comment: 'Great job overall, arrived a little late.', date: '2026-07-10' },
-  { id: 'RV-2284', customer: 'Dinesh Kumara', provider: 'Kasun Bandara', rating: 5, comment: 'Very professional installation, highly recommend.', date: '2026-07-09' },
-  { id: 'RV-2280', customer: 'Ishara Bandara', provider: 'Nimal Perera', rating: 5, comment: 'Excellent work, will book again.', date: '2026-07-09' },
-  { id: 'RV-2276', customer: 'Tharindu Rathnayake', provider: 'ColorCraft Painters', rating: 4, comment: 'Neat finish, good communication throughout.', date: '2026-07-08' },
-  { id: 'RV-2271', customer: 'Chamodi Silva', provider: 'Roshan Jayasuriya', rating: 3, comment: 'AC works fine now but took longer than expected.', date: '2026-07-08' },
-  { id: 'RV-2265', customer: 'Yohan Perera', provider: 'Kasun Bandara', rating: 5, comment: 'Assembled everything perfectly, very tidy.', date: '2026-07-07' },
-  { id: 'RV-2260', customer: 'Nadeesha Fonseka', provider: 'BuildRight Masonry', rating: 5, comment: 'Outstanding tiling work, exceeded expectations.', date: '2026-07-06' },
-  { id: 'RV-2254', customer: 'Dilshan Perera', provider: 'Nimal Perera', rating: 4, comment: 'Thorough inspection and fair pricing.', date: '2026-07-05' },
-  { id: 'RV-2249', customer: 'Sanduni Perera', provider: 'Sunil Fernando', rating: 2, comment: 'Booking got cancelled last minute, disappointing.', date: '2026-07-04' },
-];
-
-const DEMO_HEALTH = {
-  uptimePercent: 99.94,
-  avgResponseMs: 182,
-  openDisputes: 3,
-  avgRating: 4.6,
-  verifiedProviderRate: 88,
-  activeSessions: 214,
-};
-
-/* ---------------------------------------------------------------------- */
 
 const formatLKR = (n) => `Rs. ${Number(n || 0).toLocaleString()}`;
 
-const fmtDate = (d) =>
-  new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-function StarRating({ value }) {
-  return (
-    <span className="adash-stars" aria-label={`${value} out of 5 stars`}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <i
-          key={n}
-          className={`ti ${n <= value ? 'ti-star-filled' : 'ti-star'}`}
-          aria-hidden="true"
-        ></i>
-      ))}
-    </span>
-  );
-}
+const fmtDate = (d) => {
+  if (!d) return '—';
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
 
 function SectionHeading({ eyebrow, title }) {
   return (
@@ -160,90 +45,74 @@ function SectionHeading({ eyebrow, title }) {
   );
 }
 
-function HealthTile({ icon, label, value, tone = 'good' }) {
+function StatCard({ icon, tone, value, label }) {
   return (
-    <div className="adash-health-tile">
-      <div className={`adash-health-dot adash-health-dot-${tone}`}></div>
-      <div className="adash-health-icon"><i className={`ti ${icon}`} aria-hidden="true"></i></div>
+    <div className="adash-stat-card">
+      <div className={`adash-stat-icon adash-icon-${tone}`}>
+        <i className={`ti ${icon}`} aria-hidden="true"></i>
+      </div>
       <div>
-        <strong>{value}</strong>
+        <strong>{value.toLocaleString()}</strong>
         <span>{label}</span>
       </div>
     </div>
   );
 }
 
+function EmptyRow({ colSpan, label }) {
+  return (
+    <tr>
+      <td colSpan={colSpan} className="adash-empty-cell">
+        {label}
+      </td>
+    </tr>
+  );
+}
+
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
-  const [usingDemo, setUsingDemo] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [summary, setSummary] = useState(DEMO_SUMMARY);
-  const [statusData, setStatusData] = useState(DEMO_STATUS);
-  const [growthData, setGrowthData] = useState(DEMO_GROWTH);
-  const [categoryData, setCategoryData] = useState(DEMO_CATEGORIES);
-  const [trendData, setTrendData] = useState(DEMO_TREND);
-  const [recentBookings, setRecentBookings] = useState(DEMO_RECENT_BOOKINGS);
-  const [reviews, setReviews] = useState(DEMO_REVIEWS);
-  const [health, setHealth] = useState(DEMO_HEALTH);
+  const [profile, setProfile] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [providers, setProviders] = useState([]);
+  const [services, setServices] = useState([]);
+  const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       setLoading(true);
+      setError(null);
 
-      const results = await Promise.allSettled([
-        getAdminSummary(),
-        getBookingStatusBreakdown(),
-        getUserGrowth(6),
-        getCategoryPopularity(),
-        getBookingTrend(30),
-        getRecentBookingsList(10),
-        getLatestReviews(10),
-        getPlatformHealth(),
-      ]);
+      try {
+        const [profileRes, customersRes, providersRes, servicesRes, bookingsRes] =
+          await Promise.all([
+            getAdminProfile(),
+            getAdminCustomers(),
+            getAdminProviders(),
+            getAdminServices(),
+            getAdminBookings(),
+          ]);
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      const [
-        summaryRes,
-        statusRes,
-        growthRes,
-        categoryRes,
-        trendRes,
-        bookingsRes,
-        reviewsRes,
-        healthRes,
-      ] = results;
-
-      let anyDemo = false;
-
-      if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value.data);
-      else anyDemo = true;
-
-      if (statusRes.status === 'fulfilled') setStatusData(statusRes.value.data);
-      else anyDemo = true;
-
-      if (growthRes.status === 'fulfilled') setGrowthData(growthRes.value.data);
-      else anyDemo = true;
-
-      if (categoryRes.status === 'fulfilled') setCategoryData(categoryRes.value.data);
-      else anyDemo = true;
-
-      if (trendRes.status === 'fulfilled') setTrendData(trendRes.value.data);
-      else anyDemo = true;
-
-      if (bookingsRes.status === 'fulfilled') setRecentBookings(bookingsRes.value.data);
-      else anyDemo = true;
-
-      if (reviewsRes.status === 'fulfilled') setReviews(reviewsRes.value.data);
-      else anyDemo = true;
-
-      if (healthRes.status === 'fulfilled') setHealth(healthRes.value.data);
-      else anyDemo = true;
-
-      setUsingDemo(anyDemo);
-      setLoading(false);
+        setProfile(profileRes.data);
+        setCustomers(customersRes.data || []);
+        setProviders(providersRes.data || []);
+        setServices(servicesRes.data || []);
+        setBookings(bookingsRes.data || []);
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err?.response?.data?.message ||
+              'Could not load the admin dashboard. Please try again.'
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
 
     load();
@@ -252,12 +121,30 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  const newSignups =
-    growthData.length >= 2
-      ? growthData[growthData.length - 1].customers +
-        growthData[growthData.length - 1].providers -
-        (growthData[growthData.length - 2].customers + growthData[growthData.length - 2].providers)
-      : 0;
+  const statusCounts = useMemo(() => {
+    const counts = { PENDING: 0, ACCEPTED: 0, COMPLETED: 0, CANCELLED: 0 };
+    bookings.forEach((b) => {
+      const status = (b.status || '').toUpperCase();
+      if (status in counts) counts[status] += 1;
+    });
+    return counts;
+  }, [bookings]);
+
+  const statusData = useMemo(
+    () =>
+      STATUS_ORDER.map((name) => ({ name, value: statusCounts[name] })).filter(
+        (s) => s.value > 0
+      ),
+    [statusCounts]
+  );
+
+  const recentBookings = useMemo(() => {
+    return [...bookings]
+      .sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate))
+      .slice(0, 10);
+  }, [bookings]);
+
+  const adminName = profile?.name || profile?.fullName || profile?.username || 'Admin';
 
   return (
     <div className="adash-page">
@@ -267,241 +154,272 @@ export default function AdminDashboard() {
       <div className="adash-welcome">
         <div className="adash-welcome-text">
           <span className="adash-eyebrow">Admin dashboard</span>
-          <h1>Welcome back, {summary.adminName || 'Admin'}</h1>
+          <h1>Welcome back, {adminName}</h1>
           <p>
-            You have <strong>{summary.pendingVerifications}</strong> provider
-            {summary.pendingVerifications === 1 ? '' : 's'} waiting for verification,
-            and <strong>{statusData.find((s) => s.name === 'Pending')?.value ?? 0}</strong> bookings
-            awaiting a response today.
+            Here&apos;s a live snapshot of Workly &mdash; <strong>{customers.length}</strong> customers,{' '}
+            <strong>{providers.length}</strong> providers, and{' '}
+            <strong>{bookings.length}</strong> bookings on the platform.
           </p>
         </div>
-        <Link to="/admin/pending-verifications" className="adash-btn adash-btn-solid">
-          <i className="ti ti-shield-check" aria-hidden="true"></i>
-          Review verifications
-        </Link>
       </div>
 
       <div className="adash-body">
-        {usingDemo && !loading && (
-          <div className="adash-notice">
-            <i className="ti ti-info-circle" aria-hidden="true"></i>
-            Some panels are showing demo data — connect the admin analytics API to replace them with live figures.
+        {error && (
+          <div className="adash-notice adash-notice-error">
+            <i className="ti ti-alert-circle" aria-hidden="true"></i>
+            {error}
           </div>
         )}
 
-        {/* ---------- Stat cards ---------- */}
-        <SectionHeading eyebrow="Overview" title="Platform at a glance" />
-        <div className="adash-stats">
-          <div className="adash-stat-card">
-            <div className="adash-stat-icon adash-icon-blue"><i className="ti ti-users" aria-hidden="true"></i></div>
-            <div>
-              <strong>{summary.customers.toLocaleString()}</strong>
-              <span>Total customers</span>
+        {loading ? (
+          <div className="adash-loading">
+            <div className="adash-spinner" aria-hidden="true"></div>
+            <span>Loading dashboard data&hellip;</span>
+          </div>
+        ) : (
+          <>
+            {/* ---------- Stat cards ---------- */}
+            <SectionHeading eyebrow="Overview" title="Platform at a glance" />
+            <div className="adash-stats">
+              <StatCard icon="ti-users" tone="blue" value={customers.length} label="Total customers" />
+              <StatCard icon="ti-tool" tone="orange" value={providers.length} label="Total providers" />
+              <StatCard icon="ti-list-details" tone="purple" value={services.length} label="Total services" />
+              <StatCard icon="ti-clipboard-list" tone="green" value={bookings.length} label="Total bookings" />
             </div>
-          </div>
-          <div className="adash-stat-card">
-            <div className="adash-stat-icon adash-icon-orange"><i className="ti ti-tool" aria-hidden="true"></i></div>
-            <div>
-              <strong>{summary.providers.toLocaleString()}</strong>
-              <span>Total providers</span>
+
+            {/* ---------- Booking status chart ---------- */}
+            <SectionHeading eyebrow="Analytics" title="Booking status breakdown" />
+            <div className="adash-card adash-chart-card">
+              {statusData.length === 0 ? (
+                <div className="adash-empty-state">
+                  <i className="ti ti-chart-pie" aria-hidden="true"></i>
+                  <p>No bookings yet — the chart will populate once bookings come in.</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={65}
+                      outerRadius={100}
+                      paddingAngle={3}
+                    >
+                      {statusData.map((entry) => (
+                        <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || '#999'} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={32} iconType="circle" />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
-          </div>
-          <div className="adash-stat-card">
-            <div className="adash-stat-icon adash-icon-purple"><i className="ti ti-clipboard-list" aria-hidden="true"></i></div>
-            <div>
-              <strong>{summary.totalBookings.toLocaleString()}</strong>
-              <span>Total bookings</span>
-            </div>
-          </div>
-          <div className="adash-stat-card">
-            <div className="adash-stat-icon adash-icon-green"><i className="ti ti-user-plus" aria-hidden="true"></i></div>
-            <div>
-              <strong>+{newSignups.toLocaleString()}</strong>
-              <span>New signups this month</span>
-            </div>
-          </div>
-        </div>
 
-        {/* ---------- Charts ---------- */}
-        <SectionHeading eyebrow="Analytics" title="Trends & performance" />
-        <div className="adash-charts-grid">
-          <div className="adash-card">
-            <h2>Booking status</h2>
-            <ResponsiveContainer width="100%" height={240}>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
-                >
-                  {statusData.map((entry) => (
-                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || '#999'} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend verticalAlign="bottom" height={28} iconType="circle" />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="adash-card">
-            <h2>User growth</h2>
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={growthData} margin={{ left: -20, right: 10, top: 10 }}>
-                <defs>
-                  <linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ff9800" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#ff9800" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="provGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Legend iconType="circle" />
-                <Area type="monotone" dataKey="customers" stroke="#ff9800" fill="url(#custGrad)" strokeWidth={2} />
-                <Area type="monotone" dataKey="providers" stroke="#6366f1" fill="url(#provGrad)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="adash-card">
-            <h2>Service category popularity</h2>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={categoryData} margin={{ left: -20, right: 10, top: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
-                <XAxis dataKey="category" tick={{ fontSize: 10.5 }} axisLine={false} tickLine={false} interval={0} angle={-20} textAnchor="end" height={50} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="bookings" fill="#ff6a00" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="adash-card">
-            <h2>Booking trend — last 30 days</h2>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={trendData} margin={{ left: -20, right: 10, top: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} interval={4} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="bookings" stroke="#22c55e" strokeWidth={2.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* ---------- Tables ---------- */}
-        <SectionHeading eyebrow="Activity" title="Recent activity" />
-        <div className="adash-card adash-table-card">
-          <div className="adash-card-title">
-            <h2>Recent bookings</h2>
-          </div>
-          <div className="adash-table-wrap">
-            <table className="adash-table">
-              <thead>
-                <tr>
-                  <th>Booking</th>
-                  <th>Customer</th>
-                  <th>Provider</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentBookings.slice(0, 10).map((b) => (
-                  <tr key={b.id}>
-                    <td>
-                      <strong>{b.service}</strong>
-                      <span className="adash-subtext">{b.id}</span>
-                    </td>
-                    <td>{b.customer}</td>
-                    <td>{b.provider}</td>
-                    <td>{fmtDate(b.date)}</td>
-                    <td><span className={`adash-badge badge-${b.status.toLowerCase()}`}>{b.status}</span></td>
-                    <td>{b.amount > 0 ? formatLKR(b.amount) : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="adash-card adash-table-card">
-          <div className="adash-card-title">
-            <h2>Latest reviews</h2>
-          </div>
-          <div className="adash-table-wrap">
-            <table className="adash-table">
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th>Provider</th>
-                  <th>Rating</th>
-                  <th>Comment</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviews.slice(0, 10).map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.customer}</td>
-                    <td>{r.provider}</td>
-                    <td><StarRating value={r.rating} /></td>
-                    <td className="adash-comment">{r.comment}</td>
-                    <td>{fmtDate(r.date)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* ---------- Platform health ---------- */}
-        <SectionHeading eyebrow="System" title="Platform health" />
-        <div className="adash-card adash-health-card">
-          <div className="adash-card-title">
-            <h2>Live system status</h2>
-            <span className={`adash-health-status ${health.openDisputes > 5 || health.uptimePercent < 99 ? 'warn' : 'ok'}`}>
-              <span className="adash-health-status-dot"></span>
-              {health.openDisputes > 5 || health.uptimePercent < 99 ? 'Degraded performance' : 'All systems operational'}
-            </span>
-          </div>
-
-          <div className="adash-health-layout">
-            <div className="adash-health-visual">
-              <img
-                src="/adminimages/system-status.png"
-                alt="Illustration of a server and shield representing platform system status"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextSibling.style.display = 'flex';
-                }}
-              />
-              <div className="adash-health-visual-fallback">
-                <i className="ti ti-server-2" aria-hidden="true"></i>
+            {/* ---------- Recent bookings ---------- */}
+            <SectionHeading eyebrow="Activity" title="Recent bookings" />
+            <div className="adash-card adash-table-card">
+              <div className="adash-table-wrap">
+                <table className="adash-table">
+                  <thead>
+                    <tr>
+                      <th>Booking ID</th>
+                      <th>Customer</th>
+                      <th>Provider</th>
+                      <th>Service</th>
+                      <th>Booking date</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentBookings.length === 0 ? (
+                      <EmptyRow colSpan={7} label="No bookings yet." />
+                    ) : (
+                      recentBookings.map((b) => (
+                        <tr key={b.id}>
+                          <td>{b.bookingId || b.id}</td>
+                          <td>{b.customerName || '—'}</td>
+                          <td>{b.providerName || '—'}</td>
+                          <td>{b.serviceTitle || '—'}</td>
+                          <td>{fmtDate(b.bookingDate)}</td>
+                          <td>{formatLKR(b.amount)}</td>
+                          <td>
+                            <span
+                              className={`adash-badge badge-${(b.status || '').toLowerCase()}`}
+                            >
+                              {b.status || 'UNKNOWN'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div className="adash-health-grid">
-              <HealthTile icon="ti-activity" label="Uptime" value={`${health.uptimePercent}%`} tone="good" />
-              <HealthTile icon="ti-bolt" label="Avg response time" value={`${health.avgResponseMs} ms`} tone="good" />
-              <HealthTile icon="ti-alert-triangle" label="Open disputes" value={health.openDisputes} tone={health.openDisputes > 5 ? 'bad' : 'warn'} />
-              <HealthTile icon="ti-star" label="Average rating" value={health.avgRating} tone="good" />
-              <HealthTile icon="ti-shield-check" label="Verified providers" value={`${health.verifiedProviderRate}%`} tone="good" />
-              <HealthTile icon="ti-users" label="Active sessions" value={health.activeSessions} tone="good" />
+            {/* ---------- Customers ---------- */}
+            <SectionHeading eyebrow="People" title="Customers" />
+            <div className="adash-card adash-table-card">
+              <div className="adash-card-title">
+                <h2>All customers</h2>
+                <span className="adash-count-pill">{customers.length}</span>
+              </div>
+              <div className="adash-table-wrap">
+                <table className="adash-table">
+                  <thead>
+                    <tr>
+                      <th>Customer ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Joined date</th>
+                      <th>Bookings</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.length === 0 ? (
+                      <EmptyRow colSpan={7} label="No customers yet." />
+                    ) : (
+                      customers.map((c) => (
+                        <tr key={c.id}>
+                          <td>{c.id}</td>
+                          <td>
+                            <div className="adash-name-cell">
+                              {c.avatarUrl ? (
+                                <img
+                                   src={c.avatarUrl}
+                                   onError={(e)=>{
+                                      e.target.style.display="none";
+                                   }} alt="" className="adash-avatar-sm" />
+                              ) : (
+                                <span className="adash-avatar-sm adash-avatar-empty">
+                                  <i className="ti ti-user" aria-hidden="true"></i>
+                                </span>
+                              )}
+                              <strong>{c.name}</strong>
+                            </div>
+                          </td>
+                          <td>{c.email}</td>
+                          <td>{c.phone || '—'}</td>
+                          <td>{c.location || '—'}</td>
+                          <td>{fmtDate(c.joinedDate)}</td>
+                          <td>{c.totalBookings ?? 0}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </div>
+
+            {/* ---------- Providers ---------- */}
+            <SectionHeading eyebrow="People" title="Providers" />
+            <div className="adash-card adash-table-card">
+              <div className="adash-card-title">
+                <h2>All providers</h2>
+                <span className="adash-count-pill">{providers.length}</span>
+              </div>
+              <div className="adash-table-wrap">
+                <table className="adash-table">
+                  <thead>
+                    <tr>
+                      <th>Provider ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Primary service</th>
+                      <th>Verified</th>
+                      <th>Skills</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {providers.length === 0 ? (
+                      <EmptyRow colSpan={7} label="No providers yet." />
+                    ) : (
+                      providers.map((p) => (
+                        <tr key={p.id}>
+                          <td>{p.id}</td>
+                          <td>
+                            <div className="adash-name-cell">
+                              {p.avatarUrl ? (
+                                <img src={p.avatarUrl} alt="" className="adash-avatar-sm" />
+                              ) : (
+                                <span className="adash-avatar-sm adash-avatar-empty">
+                                  <i className="ti ti-user" aria-hidden="true"></i>
+                                </span>
+                              )}
+                              <strong>{p.name}</strong>
+                            </div>
+                          </td>
+                          <td>{p.email}</td>
+                          <td>{p.phone || '—'}</td>
+                          <td>{p.service || '—'}</td>
+                          <td>
+                            <span className={`adash-badge ${p.verified ? 'badge-completed' : 'badge-pending'}`}>
+                              {p.verified ? 'Verified' : 'Pending'}
+                            </span>
+                          </td>
+                          <td className="adash-skills-cell">
+                            {p.skills && p.skills.length > 0 ? (
+                              p.skills.map((s) => (
+                                <span key={s} className="adash-chip">
+                                  {s}
+                                </span>
+                              ))
+                            ) : (
+                              '—'
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ---------- Services ---------- */}
+            <SectionHeading eyebrow="Catalog" title="Services" />
+            <div className="adash-card adash-table-card">
+              <div className="adash-card-title">
+                <h2>All services</h2>
+                <span className="adash-count-pill">{services.length}</span>
+              </div>
+              <div className="adash-table-wrap">
+                <table className="adash-table">
+                  <thead>
+                    <tr>
+                      <th>Service ID</th>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {services.length === 0 ? (
+                      <EmptyRow colSpan={4} label="No services yet." />
+                    ) : (
+                      services.map((s) => (
+                        <tr key={s.id}>
+                          <td>{s.id}</td>
+                          <td>
+                            <strong>{s.title}</strong>
+                          </td>
+                          <td>{s.category}</td>
+                          <td className="adash-comment">{s.desc}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <Footer />
