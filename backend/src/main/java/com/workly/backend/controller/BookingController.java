@@ -28,14 +28,14 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
-    @GetMapping("/customer/{customerId}")
-    public List<BookingResponse> getCustomerBookings(@PathVariable String customerId) {
-        return bookingService.getCustomerBookings(customerId);
+    @GetMapping("/me")
+    public List<BookingResponse> getMyBookings() {
+        return bookingService.getMyBookings();
     }
 
-    @GetMapping("/provider/{providerId}")
-    public List<BookingResponse> getProviderBookings(@PathVariable String providerId) {
-        return bookingService.getProviderBookings(providerId);
+    @GetMapping("/provider")
+    public List<BookingResponse> getProviderJobs() {
+        return bookingService.getProviderJobs();
     }
 
     @PatchMapping("/{bookingId}/status")

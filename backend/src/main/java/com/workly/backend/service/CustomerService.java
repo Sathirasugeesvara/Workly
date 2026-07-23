@@ -19,4 +19,11 @@ public interface CustomerService {
 
     AdminCustomerResponse getCustomerForAdmin(String customerId);
 
+    /**
+     * Profile of the currently authenticated customer, resolved from
+     * the JWT — not a path parameter, so a customer can never fetch
+     * anyone else's profile.
+     */
+    CustomerResponse getMyProfile();
+
 }

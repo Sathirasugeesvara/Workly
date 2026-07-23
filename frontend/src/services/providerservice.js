@@ -31,15 +31,23 @@ import api from "./api";
 export const getProviderSummary = () => api.get("/provider/summary");
 
 export const getEarningsTrend = (months = 6) =>
-  api.get(`/provider/analytics/earnings?months=${months}`);
+    api.get(`/provider/analytics/earnings?months=${months}`);
 
 export const getProviderBookingStatus = () =>
-  api.get("/provider/analytics/booking-status");
+    api.get("/provider/analytics/booking-status");
 
 export const getProviderReviews = (limit = 5) =>
-  api.get(`/provider/reviews/latest?limit=${limit}`);
+    api.get(`/provider/reviews/latest?limit=${limit}`);
 
 export const getProviderSchedule = (days = 30) =>
-  api.get(`/provider/schedule?days=${days}`);
+    api.get(`/provider/schedule?days=${days}`);
 
 export const getReviewsForProvider = (id) => api.get(`/providers/${id}/reviews`);
+
+/**
+ * Public listing of verified providers, for the browse/booking flow.
+ * GET /api/providers
+ *   -> [{ providerId, name, service, location, rating, reviews,
+ *          jobsDone, verified, skills, avatarUrl }, ...]
+ */
+export const getVerifiedProviders = () => api.get("/providers");

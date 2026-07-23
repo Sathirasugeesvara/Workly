@@ -12,9 +12,9 @@ public interface BookingService {
 
     List<BookingResponse> getAllBookings();
 
-    List<BookingResponse> getCustomerBookings(String customerId);
+    List<BookingResponse> getMyBookings();
 
-    List<BookingResponse> getProviderBookings(String providerId);
+    List<BookingResponse> getProviderJobs();
 
     BookingResponse updateBookingStatus(String bookingId, BookingStatus status);
 

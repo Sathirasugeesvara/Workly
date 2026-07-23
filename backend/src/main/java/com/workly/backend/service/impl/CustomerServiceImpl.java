@@ -5,8 +5,11 @@ import com.workly.backend.dto.response.CustomerResponse;
 import com.workly.backend.entity.Customer;
 import com.workly.backend.exception.UserNotFoundException;
 import com.workly.backend.repository.CustomerRepository;
+import com.workly.backend.security.CustomUserDetails;
 import com.workly.backend.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +24,17 @@ public class CustomerServiceImpl implements CustomerService {
     private Customer findByMongoId(String customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+    }
+
+    private String currentUserEmail() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        return userDetails.getUsername();
     }
 
     private CustomerResponse toResponse(Customer customer) {
@@ -85,6 +99,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public AdminCustomerResponse getCustomerForAdmin(String customerId) {
         return toAdminResponse(findByMongoId(customerId));
+    }
+
+    @Override
+    public CustomerResponse getMyProfile() {
+
+        Customer customer = customerRepository.findByEmail(currentUserEmail())
+                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+
+        return toResponse(customer);
     }
 
 }

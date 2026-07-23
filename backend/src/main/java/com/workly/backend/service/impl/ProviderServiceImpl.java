@@ -3,6 +3,7 @@ package com.workly.backend.service.impl;
 import com.workly.backend.dto.response.AdminProviderResponse;
 import com.workly.backend.dto.response.ProviderResponse;
 import com.workly.backend.dto.response.ProviderVerificationResponse;
+import com.workly.backend.dto.response.PublicProviderResponse;
 import com.workly.backend.entity.ServiceProvider;
 import com.workly.backend.exception.UserNotFoundException;
 import com.workly.backend.repository.ServiceProviderRepository;
@@ -72,6 +73,26 @@ public class ProviderServiceImpl implements ProviderService {
                 .experience(null)
                 .skills(provider.getSkills())
                 .documentsSubmitted(0)
+                .build();
+    }
+
+    /**
+     * Rating/reviews/jobsDone are hardcoded to 0 for now, same as
+     * toAdminResponse() above — real numbers need the Review entity,
+     * which doesn't exist yet.
+     */
+    private PublicProviderResponse toPublicResponse(ServiceProvider provider) {
+        return PublicProviderResponse.builder()
+                .providerId(provider.getProviderId())
+                .name(provider.getFullName())
+                .service(primaryService(provider))
+                .location(provider.getAddress())
+                .rating(0)
+                .reviews(0)
+                .jobsDone(0)
+                .verified(provider.isVerified())
+                .skills(provider.getSkills())
+                .avatarUrl(provider.getProfilePicture())
                 .build();
     }
 
@@ -150,6 +171,14 @@ public class ProviderServiceImpl implements ProviderService {
         provider.setUpdatedAt(LocalDateTime.now());
         providerRepository.save(provider);
         return toAdminResponse(provider);
+    }
+
+    @Override
+    public List<PublicProviderResponse> getVerifiedProviders() {
+        return providerRepository.findByVerifiedTrue()
+                .stream()
+                .map(this::toPublicResponse)
+                .toList();
     }
 
 }
