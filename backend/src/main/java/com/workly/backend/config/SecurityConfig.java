@@ -67,7 +67,7 @@ public class SecurityConfig {
 
                         // Public APIs
                         .requestMatchers("/api/auth/**").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/api/providers/**").permitAll()
                         // Customer APIs
                         .requestMatchers("/api/customer/**")
                         .hasRole("CUSTOMER")

@@ -35,5 +35,10 @@ public interface ProviderService {
      * Verified providers only, for the public browse/booking flow.
      */
     List<PublicProviderResponse> getVerifiedProviders();
+    /**
+     * A single verified provider's public profile card, looked up by
+     * business providerId (e.g. "PRO000001") — used by the /profile/:id page.
+     */
+    PublicProviderResponse getPublicProviderById(String providerId);
 
 }

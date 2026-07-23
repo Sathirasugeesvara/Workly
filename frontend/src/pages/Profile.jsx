@@ -22,6 +22,7 @@ import {
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getMyProfile, getUserById, updateMyProfile, deleteMyAccount } from '../services/userService';
+import { getProviderProfile } from '../services/providerservice';
 import './Profile.css';
 
 const mockProviders = {
@@ -91,10 +92,32 @@ export default function Profile() {
       setLoading(true);
       setLoadError(false);
       try {
-        const res = isOwnProfile ? await getMyProfile() : await getUserById(id);
-        if (cancelled) return;
-        setData(res.data);
-        setDraft(res.data);
+        if (isOwnProfile) {
+          const res = await getMyProfile();
+          if (cancelled) return;
+          setData(res.data);
+          setDraft(res.data);
+        } else {
+          const res = await getProviderProfile(id);
+          if (cancelled) return;
+          const mapped = {
+            id: res.data.providerId,
+            role: 'provider',
+            name: res.data.name,
+            image: res.data.avatarUrl || '',
+            address: res.data.location,
+            rating: res.data.rating,
+            reviews: res.data.reviews,
+            jobsDone: res.data.jobsDone,
+            verified: res.data.verified,
+            skills: res.data.skills || [],
+            mobile: '',
+            whatsapp: '',
+            email: '',
+          };
+          setData(mapped);
+          setDraft(mapped);
+        }
         setUsingDemo(false);
       } catch {
         if (cancelled) return;

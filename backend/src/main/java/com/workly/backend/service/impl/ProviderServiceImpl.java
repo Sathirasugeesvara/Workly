@@ -180,5 +180,11 @@ public class ProviderServiceImpl implements ProviderService {
                 .map(this::toPublicResponse)
                 .toList();
     }
+    @Override
+    public PublicProviderResponse getPublicProviderById(String providerId) {
+        ServiceProvider provider = providerRepository.findByProviderId(providerId)
+                .orElseThrow(() -> new UserNotFoundException("Provider not found"));
+        return toPublicResponse(provider);
+    }
 
 }

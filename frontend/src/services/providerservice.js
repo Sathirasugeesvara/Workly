@@ -51,3 +51,4 @@ export const getReviewsForProvider = (id) => api.get(`/providers/${id}/reviews`)
  *          jobsDone, verified, skills, avatarUrl }, ...]
  */
 export const getVerifiedProviders = () => api.get("/providers");
+export const getProviderProfile = (id) => api.get(`/providers/${id}`);
