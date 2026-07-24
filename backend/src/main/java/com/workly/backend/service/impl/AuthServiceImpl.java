@@ -74,8 +74,17 @@ public class AuthServiceImpl implements AuthService {
             customer.setAddress(request.getAddress());
             customer.setGender(request.getGender());
 
-            long customerCount = customerRepository.count() + 1;
-            customer.setCustomerId(String.format("CUS%06d", customerCount));      // Auto-generate later
+            String nextCustomerId = "CUS000001";
+
+            var lastCustomer = customerRepository.findTopByOrderByCustomerIdDesc();
+
+            if (lastCustomer.isPresent()) {
+                String lastId = lastCustomer.get().getCustomerId();
+                int number = Integer.parseInt(lastId.substring(3));
+                nextCustomerId = String.format("CUS%06d", number + 1);
+            }
+
+            customer.setCustomerId(nextCustomerId);
             customer.setProfilePicture("default-profile.png");
 
             customerRepository.save(customer);
@@ -91,7 +100,6 @@ public class AuthServiceImpl implements AuthService {
             provider.setGender(request.getGender());
 
             long providerCount = providerRepository.count() + 1;
-            provider.setProviderId(String.format("PRO%06d", providerCount));      // Auto-generate later
             provider.setProfilePicture("default-profile.png");
 
             provider.setVerified(false);

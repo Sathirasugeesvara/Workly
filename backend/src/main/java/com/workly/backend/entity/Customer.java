@@ -8,7 +8,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.LocalDate;
+
+
 
 /**
  * Customer Entity
@@ -30,10 +33,7 @@ public class Customer extends User {
     @Id
     private String id;
 
-    /**
-     * Business Customer ID
-     * Example: CUS000001
-     */
+    @Indexed(unique = true)
     private String customerId;
 
     private String phoneNumber;
