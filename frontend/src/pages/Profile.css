@@ -284,6 +284,74 @@
   border: 1px solid rgba(255, 152, 0, 0.2);
 }
 
+.profile-skills-empty {
+  font-size: 13px;
+  color: #9a9a9a;
+  font-style: italic;
+}
+
+.profile-skill-pill-editable {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-skill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #ff6a00;
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+}
+
+.profile-skill-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.profile-skill-add-row input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fafafa;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.profile-skill-add-row input:focus {
+  border-color: #ff9800;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.12);
+}
+
+.profile-skill-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: none;
+  background: #ff9800;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.profile-skill-add-btn:hover {
+  background: #ff6a00;
+}
+
 /* ===================== FIELDS GRID ===================== */
 .profile-fields-grid {
   display: grid;

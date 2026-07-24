@@ -102,12 +102,20 @@ public class ProviderServiceImpl implements ProviderService {
                 .name(provider.getFullName())
                 .service(primaryService(provider))
                 .location(provider.getAddress())
+                .gender(
+                        provider.getGender() != null
+                                ? provider.getGender().name()
+                                : null
+                )
                 .rating(0)
                 .reviews(0)
                 .jobsDone(0)
                 .verified(provider.isVerified())
                 .skills(provider.getSkills())
                 .avatarUrl(provider.getProfilePicture())
+                .phoneNumber(provider.getPhoneNumber())
+                .whatsappNumber(provider.getPhoneNumber())
+                .email(provider.getEmail())
                 .build();
     }
 
