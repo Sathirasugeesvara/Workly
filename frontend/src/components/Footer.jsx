@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaXTwitter, FaLinkedinIn } from 'react-icons/fa6';
 import { TbMapPin, TbMail, TbPhone } from 'react-icons/tb';
-import './components.css';
+import './Components.css';
 import logo from '../assets/logo.png';
 
 export default function Footer() {
