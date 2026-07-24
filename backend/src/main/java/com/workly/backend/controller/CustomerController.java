@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -21,4 +24,13 @@ public class CustomerController {
         return customerService.getMyProfile();
     }
 
+    @PutMapping("/profile")
+    public CustomerResponse updateMyProfile(@RequestBody CustomerResponse request) {
+        return customerService.updateMyProfile(request);
+    }
+
+    @DeleteMapping("/profile")
+    public void deleteMyProfile() {
+        customerService.deleteMyProfile();
+    }
 }

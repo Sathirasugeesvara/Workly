@@ -38,11 +38,23 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerResponse toResponse(Customer customer) {
+
         CustomerResponse response = new CustomerResponse();
+
         response.setCustomerId(customer.getCustomerId());
         response.setFullName(customer.getFullName());
         response.setEmail(customer.getEmail());
         response.setPhoneNumber(customer.getPhoneNumber());
+        response.setAddress(customer.getAddress());
+
+        if (customer.getGender() != null) {
+            response.setGender(customer.getGender().name());
+        }
+
+        response.setProfilePicture(customer.getProfilePicture());
+
+        response.setDateOfBirth(customer.getDateOfBirth());
+        response.setCategory(customer.getCategory());
         return response;
     }
 
@@ -99,6 +111,58 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public AdminCustomerResponse getCustomerForAdmin(String customerId) {
         return toAdminResponse(findByMongoId(customerId));
+    }
+
+    @Override
+    public CustomerResponse updateMyProfile(CustomerResponse request) {
+
+        Customer customer = customerRepository.findByEmail(currentUserEmail())
+                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+
+        if (request.getFullName() != null) {
+            customer.setFullName(request.getFullName());
+        }
+
+        if (request.getPhoneNumber() != null) {
+            customer.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        if (request.getAddress() != null) {
+            customer.setAddress(request.getAddress());
+        }
+
+        if (request.getProfilePicture() != null) {
+            customer.setProfilePicture(request.getProfilePicture());
+        }
+
+        if (request.getGender() != null && !request.getGender().isBlank()) {
+            customer.setGender(
+                    com.workly.backend.enums.Gender.valueOf(request.getGender().toUpperCase())
+            );
+        }
+
+        if (request.getDateOfBirth() != null) {
+            customer.setDateOfBirth(request.getDateOfBirth());
+        }
+
+        if (request.getCategory() != null) {
+            customer.setCategory(request.getCategory());
+        }
+
+        customer.setUpdatedAt(LocalDateTime.now());
+
+        customerRepository.save(customer);
+
+        return toResponse(customer);
+    }
+
+    @Override
+    public void deleteMyProfile() {
+
+        Customer customer = customerRepository.findByEmail(currentUserEmail())
+                .orElseThrow(() -> new UserNotFoundException("Customer not found"));
+
+        customerRepository.delete(customer);
     }
 
     @Override

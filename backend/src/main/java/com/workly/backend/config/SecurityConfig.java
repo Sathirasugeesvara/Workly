@@ -74,7 +74,7 @@ public class SecurityConfig {
 
                         // Provider APIs
                         .requestMatchers("/api/provider/**")
-                        .hasRole("PROVIDER")
+                        .authenticated()
 
                         // Admin APIs
                         .requestMatchers("/api/admin/**")
