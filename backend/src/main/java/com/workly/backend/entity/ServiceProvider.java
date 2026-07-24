@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.util.List;
 
@@ -29,14 +30,12 @@ import java.util.List;
 @Document(collection = "serviceproviders")
 public class ServiceProvider extends User {
 
+
+    @Indexed(unique = true)
+    private String providerId;
+
     @Id
     private String id;
-
-    /**
-     * Example:
-     * PRO000001
-     */
-    private String providerId;
 
     private String phoneNumber;
 

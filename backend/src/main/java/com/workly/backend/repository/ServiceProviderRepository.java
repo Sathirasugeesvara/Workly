@@ -18,6 +18,7 @@ public interface ServiceProviderRepository extends MongoRepository<ServiceProvid
     List<ServiceProvider> findByVerifiedFalse();
     List<ServiceProvider> findByVerifiedTrue();
 
+    Optional<ServiceProvider> findTopByOrderByProviderIdDesc();
     boolean existsByEmail(String email);
 
 }
