@@ -20,6 +20,9 @@ public class BookingController {
 
     @PostMapping
     public BookingResponse createBooking(@RequestBody BookingRequest request) {
+
+        System.out.println("=== CREATE BOOKING HIT ===");
+
         return bookingService.createBooking(request);
     }
 

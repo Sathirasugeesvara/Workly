@@ -22,6 +22,7 @@ import {
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './MakeRequest.css';
+import { createBooking } from "../services/bookingService";
 
 const mockProviders = {
   p1:  { id: 'p1',  name: 'Nuwan Perera',        service: 'Electrical',    price: 'Rs. 1,500 / visit', mobile: '+94 71 234 5678', email: 'nuwan.perera@example.com' },
@@ -117,6 +118,32 @@ export default function Request() {
   const handleBack = () => {
     if (step > 0) setStep((s) => s - 1);
   };
+
+  const handleConfirmBooking = async () => {
+  try {
+    const payload = {
+      providerId,
+      serviceAddress: form.address,
+      serviceDate: form.date,
+      serviceTime: form.time,
+      notes: form.notes,
+      paymentMethod: payMethod,
+      transferReference: bankDetails.transferRef,
+    };
+
+    console.log("Sending:", payload);
+
+    const response = await createBooking(payload);
+
+    console.log("Booking saved:", response.data);
+
+    handleNext();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to save booking.");
+  }
+};
 
   return (
     <div className="request-page">
@@ -405,7 +432,7 @@ export default function Request() {
                 </button>
                 <button
                   className="request-btn request-btn-primary"
-                  onClick={handleNext}
+                  onClick={handleConfirmBooking}
                   disabled={!canFinish}
                 >
                   Confirm booking

@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.time.LocalTime;
 
 import java.time.LocalDateTime;
 import java.util.EnumMap;
@@ -155,15 +156,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponse createBooking(BookingRequest request) {
 
-        Customer customer = customerRepository.findByCustomerId(request.getCustomerId())
+        Customer customer = customerRepository.findByCustomerId(currentCustomerId())
                 .orElseThrow(() -> new BookingNotFoundException("Customer not found"));
 
         ServiceProvider provider = providerRepository.findByProviderId(request.getProviderId())
                 .orElseThrow(() -> new BookingNotFoundException("Provider not found"));
-
-        com.workly.backend.entity.Service service =
-                serviceRepository.findByServiceId(request.getServiceId())
-                        .orElseThrow(() -> new BookingNotFoundException("Service not found"));
 
         Booking booking = Booking.builder()
                 .bookingId("BK" + UUID.randomUUID().toString().substring(0, 8))
@@ -171,11 +168,13 @@ public class BookingServiceImpl implements BookingService {
                 .customerName(customer.getFullName())
                 .providerId(provider.getProviderId())
                 .providerName(provider.getFullName())
-                .serviceId(service.getServiceId())
-                .serviceTitle(service.getTitle())
-                .serviceCategory(service.getCategory())
-                .bookingDate(request.getBookingDate())
-                .address(request.getAddress())
+                .bookingDate(
+                        LocalDateTime.of(
+                                request.getServiceDate(),
+                                java.time.LocalTime.parse(request.getServiceTime())
+                        )
+                )
+                .address(request.getServiceAddress())
                 .notes(request.getNotes())
                 .amount(0)
                 .status(BookingStatus.PENDING)
