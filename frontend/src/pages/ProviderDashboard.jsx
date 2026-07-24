@@ -21,7 +21,7 @@ import {
   getProviderBookingStatus,
   getProviderReviews,
   getProviderSchedule,
-} from '../services/providerService';
+} from '../services/providerservice';
 import './ProviderDashboard.css';
 
 /* ---------------------------------------------------------------------- */
@@ -93,9 +93,9 @@ const initialsOf = (name) => name.split(' ').map((n) => n[0]).slice(0, 2).join('
 
 function StarRating({ value }) {
   return (
-    <span className="pdash-stars" aria-label={`${value} out of 5 stars`}>
+      <span className="pdash-stars" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <i key={n} className={`ti ${n <= value ? 'ti-star-filled' : 'ti-star'}`} aria-hidden="true"></i>
+          <i key={n} className={`ti ${n <= value ? 'ti-star-filled' : 'ti-star'}`} aria-hidden="true"></i>
       ))}
     </span>
   );
@@ -117,31 +117,31 @@ function MiniCalendar({ schedule }) {
   const monthLabel = today.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="pdash-calendar">
-      <div className="pdash-calendar-header">{monthLabel}</div>
-      <div className="pdash-calendar-weekdays">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-          <span key={`${d}-${i}`}>{d}</span>
-        ))}
-      </div>
-      <div className="pdash-calendar-grid">
-        {cells.map((d, i) => {
-          if (d === null) return <span key={`empty-${i}`} className="pdash-calendar-cell empty"></span>;
-          const dateStr = new Date(year, month, d).toISOString().slice(0, 10);
-          const hasJob = scheduleDates.has(dateStr);
-          const isToday = dateStr === todayStr;
-          return (
-            <span
-              key={d}
-              className={`pdash-calendar-cell ${isToday ? 'today' : ''} ${hasJob ? 'has-job' : ''}`}
-            >
+      <div className="pdash-calendar">
+        <div className="pdash-calendar-header">{monthLabel}</div>
+        <div className="pdash-calendar-weekdays">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+              <span key={`${d}-${i}`}>{d}</span>
+          ))}
+        </div>
+        <div className="pdash-calendar-grid">
+          {cells.map((d, i) => {
+            if (d === null) return <span key={`empty-${i}`} className="pdash-calendar-cell empty"></span>;
+            const dateStr = new Date(year, month, d).toISOString().slice(0, 10);
+            const hasJob = scheduleDates.has(dateStr);
+            const isToday = dateStr === todayStr;
+            return (
+                <span
+                    key={d}
+                    className={`pdash-calendar-cell ${isToday ? 'today' : ''} ${hasJob ? 'has-job' : ''}`}
+                >
               {d}
-              {hasJob && <span className="pdash-calendar-dot"></span>}
+                  {hasJob && <span className="pdash-calendar-dot"></span>}
             </span>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
   );
 }
 
@@ -199,175 +199,175 @@ export default function ProviderDashboard() {
   }, []);
 
   const upcoming = useMemo(
-    () =>
-      [...schedule]
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .slice(0, 4),
-    [schedule]
+      () =>
+          [...schedule]
+              .sort((a, b) => new Date(a.date) - new Date(b.date))
+              .slice(0, 4),
+      [schedule]
   );
 
   return (
-    <div className="pdash-page">
-      <Navbar />
+      <div className="pdash-page">
+        <Navbar />
 
-      {/* ---------- Hero ---------- */}
-      <div className="pdash-hero">
-        <div className="pdash-hero-main">
-          {summary.avatarUrl ? (
-            <img src={summary.avatarUrl} alt={summary.name} className="pdash-hero-avatar-img" />
-          ) : (
-            <div className="pdash-hero-avatar">{initialsOf(summary.name)}</div>
-          )}
+        {/* ---------- Hero ---------- */}
+        <div className="pdash-hero">
+          <div className="pdash-hero-main">
+            {summary.avatarUrl ? (
+                <img src={summary.avatarUrl} alt={summary.name} className="pdash-hero-avatar-img" />
+            ) : (
+                <div className="pdash-hero-avatar">{initialsOf(summary.name)}</div>
+            )}
 
-          <div>
-            <div className="pdash-hero-name-row">
-              <h1>👋 Welcome back, {summary.name}</h1>
-              {summary.verified && (
-                <span className="pdash-verified-badge">
+            <div>
+              <div className="pdash-hero-name-row">
+                <h1>👋 Welcome back, {summary.name}</h1>
+                {summary.verified && (
+                    <span className="pdash-verified-badge">
                   <i className="ti ti-rosette-discount-check" aria-hidden="true"></i> Verified
                 </span>
-              )}
-            </div>
-            <p>
-              You have <strong>{summary.pendingRequests}</strong> new request
-              {summary.pendingRequests === 1 ? '' : 's'} waiting.
-            </p>
-            <span className="pdash-hero-rating">
+                )}
+              </div>
+              <p>
+                You have <strong>{summary.pendingRequests}</strong> new request
+                {summary.pendingRequests === 1 ? '' : 's'} waiting.
+              </p>
+              <span className="pdash-hero-rating">
               <i className="ti ti-star-filled" aria-hidden="true"></i> {summary.rating} rating
             </span>
-          </div>
-        </div>
-
-        <Link to="/provider/booking-requests" className="pdash-btn pdash-btn-solid">
-          <i className="ti ti-bell" aria-hidden="true"></i>
-          View requests
-        </Link>
-      </div>
-
-      <div className="pdash-body">
-        {usingDemo && !loading && (
-          <div className="pdash-notice">
-            <i className="ti ti-info-circle" aria-hidden="true"></i>
-            Some panels are showing demo data — connect the provider dashboard API to see live figures.
-          </div>
-        )}
-
-        {/* ---------- Stat cards ---------- */}
-        <div className="pdash-stats">
-          <div className="pdash-stat-card">
-            <div className="pdash-stat-icon pdash-icon-orange"><i className="ti ti-bell" aria-hidden="true"></i></div>
-            <div><strong>{summary.pendingRequests}</strong><span>Pending requests</span></div>
-          </div>
-          <div className="pdash-stat-card">
-            <div className="pdash-stat-icon pdash-icon-blue"><i className="ti ti-briefcase" aria-hidden="true"></i></div>
-            <div><strong>{summary.acceptedJobs}</strong><span>Accepted jobs</span></div>
-          </div>
-          <div className="pdash-stat-card">
-            <div className="pdash-stat-icon pdash-icon-green"><i className="ti ti-circle-check" aria-hidden="true"></i></div>
-            <div><strong>{summary.completedJobs}</strong><span>Completed jobs</span></div>
-          </div>
-          <div className="pdash-stat-card">
-            <div className="pdash-stat-icon pdash-icon-purple"><i className="ti ti-star-filled" aria-hidden="true"></i></div>
-            <div><strong>{summary.rating}</strong><span>Average rating</span></div>
-          </div>
-        </div>
-
-        {/* ---------- Charts ---------- */}
-        <div className="pdash-charts-grid">
-          <div className="pdash-card">
-            <h2>Earnings</h2>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={earnings} margin={{ left: -20, right: 10, top: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v) => [`Rs. ${Number(v).toLocaleString()}`, 'Earnings']} />
-                <Line type="monotone" dataKey="earnings" stroke="#ff6a00" strokeWidth={2.5} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="pdash-card">
-            <h2>Booking status</h2>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={48} outerRadius={78} paddingAngle={3}>
-                  {statusData.map((entry) => (
-                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || '#999'} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend verticalAlign="bottom" height={28} iconType="circle" />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* ---------- Reviews + Calendar ---------- */}
-        <div className="pdash-mid-grid">
-          <div className="pdash-card">
-            <div className="pdash-card-title">
-              <h2>Customer reviews</h2>
-              <Link to="/provider/booking-history" className="pdash-link">View all</Link>
             </div>
-            <div className="pdash-reviews-list">
-              {reviews.slice(0, 5).map((r) => (
-                <div className="pdash-review" key={r.id}>
-                  <div className="pdash-review-top">
-                    <span className="pdash-review-name">{r.customer}</span>
-                    <StarRating value={r.rating} />
-                  </div>
-                  <p>"{r.comment}"</p>
-                  <span className="pdash-review-date">
+          </div>
+
+          <Link to="/provider/booking-requests" className="pdash-btn pdash-btn-solid">
+            <i className="ti ti-bell" aria-hidden="true"></i>
+            View requests
+          </Link>
+        </div>
+
+        <div className="pdash-body">
+          {usingDemo && !loading && (
+              <div className="pdash-notice">
+                <i className="ti ti-info-circle" aria-hidden="true"></i>
+                Some panels are showing demo data — connect the provider dashboard API to see live figures.
+              </div>
+          )}
+
+          {/* ---------- Stat cards ---------- */}
+          <div className="pdash-stats">
+            <div className="pdash-stat-card">
+              <div className="pdash-stat-icon pdash-icon-orange"><i className="ti ti-bell" aria-hidden="true"></i></div>
+              <div><strong>{summary.pendingRequests}</strong><span>Pending requests</span></div>
+            </div>
+            <div className="pdash-stat-card">
+              <div className="pdash-stat-icon pdash-icon-blue"><i className="ti ti-briefcase" aria-hidden="true"></i></div>
+              <div><strong>{summary.acceptedJobs}</strong><span>Accepted jobs</span></div>
+            </div>
+            <div className="pdash-stat-card">
+              <div className="pdash-stat-icon pdash-icon-green"><i className="ti ti-circle-check" aria-hidden="true"></i></div>
+              <div><strong>{summary.completedJobs}</strong><span>Completed jobs</span></div>
+            </div>
+            <div className="pdash-stat-card">
+              <div className="pdash-stat-icon pdash-icon-purple"><i className="ti ti-star-filled" aria-hidden="true"></i></div>
+              <div><strong>{summary.rating}</strong><span>Average rating</span></div>
+            </div>
+          </div>
+
+          {/* ---------- Charts ---------- */}
+          <div className="pdash-charts-grid">
+            <div className="pdash-card">
+              <h2>Earnings</h2>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={earnings} margin={{ left: -20, right: 10, top: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toLocaleString()}`, 'Earnings']} />
+                  <Line type="monotone" dataKey="earnings" stroke="#ff6a00" strokeWidth={2.5} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="pdash-card">
+              <h2>Booking status</h2>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={48} outerRadius={78} paddingAngle={3}>
+                    {statusData.map((entry) => (
+                        <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || '#999'} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend verticalAlign="bottom" height={28} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* ---------- Reviews + Calendar ---------- */}
+          <div className="pdash-mid-grid">
+            <div className="pdash-card">
+              <div className="pdash-card-title">
+                <h2>Customer reviews</h2>
+                <Link to="/provider/booking-history" className="pdash-link">View all</Link>
+              </div>
+              <div className="pdash-reviews-list">
+                {reviews.slice(0, 5).map((r) => (
+                    <div className="pdash-review" key={r.id}>
+                      <div className="pdash-review-top">
+                        <span className="pdash-review-name">{r.customer}</span>
+                        <StarRating value={r.rating} />
+                      </div>
+                      <p>"{r.comment}"</p>
+                      <span className="pdash-review-date">
                     {new Date(r.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                   </span>
-                </div>
-              ))}
+                    </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="pdash-card">
-            <h2>Calendar</h2>
-            <MiniCalendar schedule={schedule} />
-            <div className="pdash-upcoming">
-              <span className="pdash-upcoming-title">Upcoming</span>
-              {upcoming.length === 0 ? (
-                <p className="pdash-upcoming-empty">Nothing scheduled.</p>
-              ) : (
-                upcoming.map((s) => (
-                  <div className="pdash-upcoming-item" key={`${s.date}-${s.title}`}>
+            <div className="pdash-card">
+              <h2>Calendar</h2>
+              <MiniCalendar schedule={schedule} />
+              <div className="pdash-upcoming">
+                <span className="pdash-upcoming-title">Upcoming</span>
+                {upcoming.length === 0 ? (
+                    <p className="pdash-upcoming-empty">Nothing scheduled.</p>
+                ) : (
+                    upcoming.map((s) => (
+                        <div className="pdash-upcoming-item" key={`${s.date}-${s.title}`}>
                     <span className="pdash-upcoming-date">
                       {new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                     </span>
-                    <span>{s.title}</span>
-                  </div>
-                ))
-              )}
+                          <span>{s.title}</span>
+                        </div>
+                    ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ---------- Quick actions ---------- */}
+          <div className="pdash-card">
+            <h2>Quick actions</h2>
+            <div className="pdash-quick-actions">
+              <Link to="/profile/me" className="pdash-action-btn">
+                <i className="ti ti-plus" aria-hidden="true"></i> Add service
+              </Link>
+              <Link to="/profile/me" className="pdash-action-btn">
+                <i className="ti ti-user-edit" aria-hidden="true"></i> Update profile
+              </Link>
+              <Link to="/profile/me" className="pdash-action-btn">
+                <i className="ti ti-calendar-time" aria-hidden="true"></i> Update availability
+              </Link>
+              <Link to="/provider/booking-history" className="pdash-action-btn">
+                <i className="ti ti-star" aria-hidden="true"></i> View reviews
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* ---------- Quick actions ---------- */}
-        <div className="pdash-card">
-          <h2>Quick actions</h2>
-          <div className="pdash-quick-actions">
-            <Link to="/profile/me" className="pdash-action-btn">
-              <i className="ti ti-plus" aria-hidden="true"></i> Add service
-            </Link>
-            <Link to="/profile/me" className="pdash-action-btn">
-              <i className="ti ti-user-edit" aria-hidden="true"></i> Update profile
-            </Link>
-            <Link to="/profile/me" className="pdash-action-btn">
-              <i className="ti ti-calendar-time" aria-hidden="true"></i> Update availability
-            </Link>
-            <Link to="/provider/booking-history" className="pdash-action-btn">
-              <i className="ti ti-star" aria-hidden="true"></i> View reviews
-            </Link>
-          </div>
-        </div>
+        <Footer />
       </div>
-
-      <Footer />
-    </div>
   );
 }

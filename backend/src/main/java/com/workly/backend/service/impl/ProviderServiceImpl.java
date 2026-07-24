@@ -1,11 +1,18 @@
 package com.workly.backend.service.impl;
 
 import com.workly.backend.dto.response.AdminProviderResponse;
+import com.workly.backend.dto.response.BookingStatusPointResponse;
+import com.workly.backend.dto.response.EarningsPointResponse;
 import com.workly.backend.dto.response.ProviderResponse;
+import com.workly.backend.dto.response.ProviderSummaryResponse;
 import com.workly.backend.dto.response.ProviderVerificationResponse;
 import com.workly.backend.dto.response.PublicProviderResponse;
+import com.workly.backend.dto.response.ScheduleItemResponse;
+import com.workly.backend.entity.Booking;
 import com.workly.backend.entity.ServiceProvider;
+import com.workly.backend.enums.BookingStatus;
 import com.workly.backend.exception.UserNotFoundException;
+import com.workly.backend.repository.BookingRepository;
 import com.workly.backend.repository.ServiceProviderRepository;
 import com.workly.backend.service.ProviderService;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +22,38 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.workly.backend.enums.Gender;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ProviderServiceImpl implements ProviderService {
 
     private final ServiceProviderRepository providerRepository;
+    private final BookingRepository bookingRepository;
 
     private ServiceProvider findByMongoId(String providerId) {
         return providerRepository.findById(providerId)
+                .orElseThrow(() -> new UserNotFoundException("Provider not found"));
+    }
+
+    /**
+     * Resolves the logged-in provider from the security context — same
+     * pattern as getMyProfile()/updateMyProfile() below.
+     */
+    private ServiceProvider currentProvider() {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails user =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        return providerRepository.findByEmail(user.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("Provider not found"));
     }
 
@@ -276,5 +305,130 @@ public class ProviderServiceImpl implements ProviderService {
         providerRepository.save(provider);
 
         return toResponse(provider);
+    }
+
+    /**
+     * rating is hardcoded to 0 here too — same reason as toPublicResponse()
+     * above, no Review module yet.
+     */
+    @Override
+    public ProviderSummaryResponse getMySummary() {
+
+        ServiceProvider provider = currentProvider();
+
+        List<Booking> bookings = bookingRepository.findByProviderId(provider.getProviderId());
+
+        long pending = bookings.stream().filter(b -> b.getStatus() == BookingStatus.PENDING).count();
+        long accepted = bookings.stream().filter(b -> b.getStatus() == BookingStatus.ACCEPTED).count();
+        long completed = bookings.stream().filter(b -> b.getStatus() == BookingStatus.COMPLETED).count();
+
+        return ProviderSummaryResponse.builder()
+                .name(provider.getFullName())
+                .avatarUrl(provider.getProfilePicture())
+                .rating(0)
+                .verified(provider.isVerified())
+                .pendingRequests(pending)
+                .acceptedJobs(accepted)
+                .completedJobs(completed)
+                .build();
+    }
+
+    @Override
+    public List<EarningsPointResponse> getMyEarningsTrend(int months) {
+
+        ServiceProvider provider = currentProvider();
+
+        List<Booking> completedBookings = bookingRepository.findByProviderId(provider.getProviderId())
+                .stream()
+                .filter(b -> b.getStatus() == BookingStatus.COMPLETED && b.getBookingDate() != null)
+                .toList();
+
+        LocalDateTime now = LocalDateTime.now();
+        List<EarningsPointResponse> trend = new ArrayList<>();
+
+        for (int i = months - 1; i >= 0; i--) {
+
+            LocalDateTime monthStart = now.minusMonths(i);
+            int year = monthStart.getYear();
+            int month = monthStart.getMonthValue();
+
+            double earningsThisMonth = completedBookings.stream()
+                    .filter(b -> b.getBookingDate().getYear() == year
+                            && b.getBookingDate().getMonthValue() == month)
+                    .mapToDouble(Booking::getAmount)
+                    .sum();
+
+            String label = monthStart.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+
+            trend.add(EarningsPointResponse.builder()
+                    .month(label)
+                    .earnings(earningsThisMonth)
+                    .build());
+        }
+
+        return trend;
+    }
+
+    @Override
+    public List<BookingStatusPointResponse> getMyBookingStatusBreakdown() {
+
+        ServiceProvider provider = currentProvider();
+
+        List<Booking> bookings = bookingRepository.findByProviderId(provider.getProviderId());
+
+        Map<BookingStatus, Long> counts = new EnumMap<>(BookingStatus.class);
+        for (BookingStatus status : BookingStatus.values()) {
+            counts.put(status, 0L);
+        }
+        for (Booking booking : bookings) {
+            counts.merge(booking.getStatus(), 1L, Long::sum);
+        }
+
+        return List.of(
+                BookingStatusPointResponse.builder()
+                        .name("Pending")
+                        .value(counts.get(BookingStatus.PENDING))
+                        .build(),
+                BookingStatusPointResponse.builder()
+                        .name("Accepted")
+                        .value(counts.get(BookingStatus.ACCEPTED))
+                        .build(),
+                BookingStatusPointResponse.builder()
+                        .name("Completed")
+                        .value(counts.get(BookingStatus.COMPLETED))
+                        .build(),
+                // REJECTED folded into "Cancelled" — the dashboard only has
+                // 4 slices/colors defined on the frontend.
+                BookingStatusPointResponse.builder()
+                        .name("Cancelled")
+                        .value(counts.get(BookingStatus.CANCELLED) + counts.get(BookingStatus.REJECTED))
+                        .build()
+        );
+    }
+
+    @Override
+    public List<ScheduleItemResponse> getMySchedule(int days) {
+
+        ServiceProvider provider = currentProvider();
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime cutoff = now.plusDays(days);
+
+        return bookingRepository.findByProviderId(provider.getProviderId())
+                .stream()
+                .filter(b -> b.getStatus() == BookingStatus.ACCEPTED
+                        && b.getBookingDate() != null
+                        && !b.getBookingDate().isBefore(now)
+                        && !b.getBookingDate().isAfter(cutoff))
+                .sorted(Comparator.comparing(Booking::getBookingDate))
+                .map(b -> ScheduleItemResponse.builder()
+                        .date(b.getBookingDate().toLocalDate().toString())
+                        .title(
+                                (b.getServiceTitle() != null ? b.getServiceTitle() : "Job")
+                                        + " — "
+                                        + (b.getCustomerName() != null ? b.getCustomerName() : "Customer")
+                        )
+                        .build())
+                .toList();
     }
 }

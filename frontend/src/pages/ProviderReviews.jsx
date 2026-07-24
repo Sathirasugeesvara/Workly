@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getReviewsForProvider } from '../services/providerService';
+import { getReviewsForProvider } from '../services/providerservice';
 import './ProviderReviews.css';
 
 // Same mock provider directory used on the profile page, just enough to
@@ -33,9 +33,9 @@ const DEMO_REVIEWS = [
 
 function StarRow({ value }) {
   return (
-    <span className="prev-stars" aria-label={`${value} out of 5 stars`}>
+      <span className="prev-stars" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <Star key={n} size={14} className={n <= value ? 'filled' : ''} />
+          <Star key={n} size={14} className={n <= value ? 'filled' : ''} />
       ))}
     </span>
   );
@@ -54,19 +54,19 @@ export default function ProviderReviews() {
     let cancelled = false;
     setLoading(true);
     getReviewsForProvider(id)
-      .then((res) => {
-        if (cancelled) return;
-        setReviews(res.data);
-        setUsingDemo(false);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setReviews(DEMO_REVIEWS);
-        setUsingDemo(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        .then((res) => {
+          if (cancelled) return;
+          setReviews(res.data);
+          setUsingDemo(false);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setReviews(DEMO_REVIEWS);
+          setUsingDemo(true);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
     return () => {
       cancelled = true;
     };
@@ -75,8 +75,8 @@ export default function ProviderReviews() {
   const filtered = filterStars === 0 ? reviews : reviews.filter((r) => r.rating === filterStars);
 
   const avgRating = reviews.length
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : provider.rating;
+      ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+      : provider.rating;
 
   const breakdown = [5, 4, 3, 2, 1].map((star) => ({
     star,
@@ -84,85 +84,85 @@ export default function ProviderReviews() {
   }));
 
   return (
-    <div className="prev-page">
-      <Navbar />
+      <div className="prev-page">
+        <Navbar />
 
-      <div className="prev-header">
-        <Link to={`/profile/${id}`} className="prev-back">
-          <ArrowLeft size={15} /> Back to profile
-        </Link>
-        <span className="prev-eyebrow">Reviews</span>
-        <h1>{provider.name}</h1>
-        <div className="prev-summary">
-          <div className="prev-score">
-            <strong>{avgRating || '—'}</strong>
-            <StarRow value={Math.round(avgRating || 0)} />
-            <span>{reviews.length} review{reviews.length === 1 ? '' : 's'}</span>
-          </div>
-          <div className="prev-breakdown">
-            {breakdown.map((b) => (
-              <button
-                key={b.star}
-                className={`prev-breakdown-row ${filterStars === b.star ? 'active' : ''}`}
-                onClick={() => setFilterStars((prev) => (prev === b.star ? 0 : b.star))}
-              >
-                <span>{b.star}★</span>
-                <span className="prev-bar-track">
+        <div className="prev-header">
+          <Link to={`/profile/${id}`} className="prev-back">
+            <ArrowLeft size={15} /> Back to profile
+          </Link>
+          <span className="prev-eyebrow">Reviews</span>
+          <h1>{provider.name}</h1>
+          <div className="prev-summary">
+            <div className="prev-score">
+              <strong>{avgRating || '—'}</strong>
+              <StarRow value={Math.round(avgRating || 0)} />
+              <span>{reviews.length} review{reviews.length === 1 ? '' : 's'}</span>
+            </div>
+            <div className="prev-breakdown">
+              {breakdown.map((b) => (
+                  <button
+                      key={b.star}
+                      className={`prev-breakdown-row ${filterStars === b.star ? 'active' : ''}`}
+                      onClick={() => setFilterStars((prev) => (prev === b.star ? 0 : b.star))}
+                  >
+                    <span>{b.star}★</span>
+                    <span className="prev-bar-track">
                   <span
-                    className="prev-bar-fill"
-                    style={{ width: reviews.length ? `${(b.count / reviews.length) * 100}%` : '0%' }}
+                      className="prev-bar-fill"
+                      style={{ width: reviews.length ? `${(b.count / reviews.length) * 100}%` : '0%' }}
                   ></span>
                 </span>
-                <span className="prev-bar-count">{b.count}</span>
-              </button>
-            ))}
+                    <span className="prev-bar-count">{b.count}</span>
+                  </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="prev-body">
-        {usingDemo && (
-          <div className="prev-notice">
-            Showing demo data — connect the reviews API to see real feedback for this provider.
-          </div>
-        )}
+        <div className="prev-body">
+          {usingDemo && (
+              <div className="prev-notice">
+                Showing demo data — connect the reviews API to see real feedback for this provider.
+              </div>
+          )}
 
-        {filterStars > 0 && (
-          <button className="prev-clear-filter" onClick={() => setFilterStars(0)}>
-            Showing {filterStars}★ only — clear filter
-          </button>
-        )}
+          {filterStars > 0 && (
+              <button className="prev-clear-filter" onClick={() => setFilterStars(0)}>
+                Showing {filterStars}★ only — clear filter
+              </button>
+          )}
 
-        {loading ? (
-          <div className="prev-empty">Loading reviews...</div>
-        ) : filtered.length === 0 ? (
-          <div className="prev-empty">
-            <p>No reviews to show.</p>
-          </div>
-        ) : (
-          <div className="prev-list">
-            {filtered.map((r) => (
-              <div className="prev-card" key={r.id}>
-                <div className="prev-card-top">
-                  <div className="prev-avatar">
-                    {r.customer.split(' ').map((n) => n[0]).slice(0, 2).join('')}
-                  </div>
-                  <div>
-                    <strong>{r.customer}</strong>
-                    <StarRow value={r.rating} />
-                  </div>
-                  <span className="prev-date">
+          {loading ? (
+              <div className="prev-empty">Loading reviews...</div>
+          ) : filtered.length === 0 ? (
+              <div className="prev-empty">
+                <p>No reviews to show.</p>
+              </div>
+          ) : (
+              <div className="prev-list">
+                {filtered.map((r) => (
+                    <div className="prev-card" key={r.id}>
+                      <div className="prev-card-top">
+                        <div className="prev-avatar">
+                          {r.customer.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+                        </div>
+                        <div>
+                          <strong>{r.customer}</strong>
+                          <StarRow value={r.rating} />
+                        </div>
+                        <span className="prev-date">
                     {new Date(r.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
-                </div>
-                <p className="prev-comment">"{r.comment}"</p>
+                      </div>
+                      <p className="prev-comment">"{r.comment}"</p>
+                    </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
   );
 }
