@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+<<<<<<< Updated upstream
 import { getMyProfile, getUserById, updateMyProfile, deleteMyAccount } from '../services/userService';
 import {
     getProviderProfile,
@@ -28,6 +29,10 @@ import {
     updateMyProviderProfile
 } from "../services/providerservice";
 import { getAdminProfile } from "../services/adminService";
+=======
+import { getMyProfile, updateMyProfile, deleteMyAccount } from '../services/userService';
+import { getProviderProfile } from '../services/providerservice';
+>>>>>>> Stashed changes
 import './Profile.css';
 
 const mockProviders = {
@@ -94,6 +99,7 @@ export default function Profile() {
     useEffect(() => {
         let cancelled = false;
 
+<<<<<<< Updated upstream
         const load = async () => {
             setLoading(true);
             setLoadError(false);
@@ -216,6 +222,55 @@ export default function Profile() {
 
     const handleChange = (field, value) => {
         setDraft((prev) => ({ ...prev, [field]: value }));
+=======
+    const load = async () => {
+      setLoading(true);
+      setLoadError(false);
+      try {
+        if (isOwnProfile) {
+          const res = await getMyProfile();
+          if (cancelled) return;
+          setData(res.data);
+          setDraft(res.data);
+        } else {
+          const res = await getProviderProfile(id);
+          if (cancelled) return;
+          const mapped = {
+            id: res.data.providerId,
+            role: 'provider',
+            name: res.data.name ?? '',
+            image: res.data.avatarUrl ?? '',
+            address: res.data.location ?? '',
+            rating: res.data.rating ?? 0,
+            reviews: res.data.reviews ?? 0,
+            jobsDone: res.data.jobsDone ?? 0,
+            verified: !!res.data.verified,
+            skills: Array.isArray(res.data.skills) ? res.data.skills : [],
+            mobile: '',
+            whatsapp: '',
+            email: '',
+          };
+          setData(mapped);
+          setDraft(mapped);
+        }
+        setUsingDemo(false);
+      } catch {
+        if (cancelled) return;
+        // Backend not reachable yet — fall back to mock data so the page
+        // still renders something sensible during development.
+        const fallback =
+          id?.startsWith('p') ? (mockProviders[id] || notFoundData) : (mockCustomers[id] || notFoundData);
+        if (isOwnProfile && !mockCustomers.c1) {
+          setLoadError(true);
+        } else {
+          setData(isOwnProfile ? mockCustomers.c1 : fallback);
+          setDraft(isOwnProfile ? mockCustomers.c1 : fallback);
+          setUsingDemo(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+>>>>>>> Stashed changes
     };
 
     const handleSave = async () => {
@@ -353,6 +408,7 @@ export default function Profile() {
                 </div>
             )}
 
+<<<<<<< Updated upstream
             {data.role === "provider" ? (
                 <ProviderProfile
                     data={data}
@@ -385,6 +441,14 @@ export default function Profile() {
                     deleting={deleting}
                 />
             )}
+=======
+  const initials = (data.name || '')
+      .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+>>>>>>> Stashed changes
 
             <Footer />
         </div>
@@ -578,6 +642,7 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
             <Briefcase size={13} />
                         {data.jobsDone} jobs completed
           </span>
+<<<<<<< Updated upstream
                 </div>
                 <Link to={`/profile/${data.id}/reviews`} className="profile-reviews-link">
                     <Star size={13} />
@@ -605,6 +670,69 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
                             </>
                         )}
                     </div>
+=======
+        </div>
+        <Link to={`/profile/${data.id}/reviews`} className="profile-reviews-link">
+          <Star size={13} />
+          View all reviews
+        </Link>
+        {isOwnProfile && (
+          <div className="profile-header-actions">
+            {editMode ? (
+              <>
+                <button className="profile-btn profile-btn-ghost" onClick={onCancel} disabled={saving}>
+                  <X size={15} /> Cancel
+                </button>
+                <button className="profile-btn profile-btn-solid" onClick={onSave} disabled={saving}>
+                  <Save size={15} /> {saving ? 'Saving...' : 'Save changes'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="profile-btn profile-btn-solid" onClick={onEdit}>
+                  <Pencil size={15} /> Edit profile
+                </button>
+                <button className="profile-btn profile-btn-danger" onClick={onDelete} disabled={deleting}>
+                  <Trash2 size={15} /> {deleting ? 'Deleting...' : 'Delete account'}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="profile-body">
+        <div className="profile-card">
+          <p className="profile-card-label">
+            <Wrench size={13} aria-hidden="true" />
+            Skills & specialties
+          </p>
+          <div className="profile-skills-list">
+            {(data.skills || []).map((skill) => (
+              <span className="profile-skill-pill" key={skill}>{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="profile-card">
+          <div className="profile-fields-grid">
+            {fields.map((field) => (
+              <div className="profile-field" key={field.key}>
+                <label>
+                  <field.icon size={13} aria-hidden="true" />
+                  {field.label}
+                </label>
+                {editMode ? (
+                  field.type === 'select' ? (
+                    <select value={draft[field.key]} onChange={(e) => onChange(field.key, e.target.value)}>
+                      {field.options.map((opt) => <option key={opt}>{opt}</option>)}
+                    </select>
+                  ) : (
+                    <input type={field.type} value={draft[field.key]} onChange={(e) => onChange(field.key, e.target.value)} />
+                  )
+                ) : (
+                  <p>{data[field.key] || '—'}</p>
+>>>>>>> Stashed changes
                 )}
             </div>
 
