@@ -13,7 +13,6 @@ import {
   X,
   Camera,
   Calendar,
-  Globe2,
   User,
   Wrench,
   ArrowRight,
@@ -22,7 +21,12 @@ import {
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getMyProfile, getUserById, updateMyProfile, deleteMyAccount } from '../services/userService';
-import { getProviderProfile } from '../services/providerservice';
+import {
+    getProviderProfile,
+    getMyProviderProfile,
+    updateMyProviderProfile
+} from "../services/providerservice";
+import { getAdminProfile } from "../services/adminService";
 import './Profile.css';
 
 const mockProviders = {
@@ -75,6 +79,7 @@ export default function Profile() {
   // "/profile/me" is the logged-in user's own profile; any other id is a
   // public profile lookup (e.g. viewing a provider from the Providers page).
   const isOwnProfile = id === 'me';
+  const role = localStorage.getItem("role");
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -93,11 +98,74 @@ export default function Profile() {
       setLoadError(false);
       try {
         if (isOwnProfile) {
-          const res = await getMyProfile();
-          if (cancelled) return;
-          setData(res.data);
-          setDraft(res.data);
-        } else {
+
+    if (role === "CUSTOMER") {
+
+        const res = await getMyProfile();
+
+        if (cancelled) return;
+
+        const profile = {
+            id: res.data.customerId,
+            role: "customer",
+            name: res.data.fullName,
+            email: res.data.email,
+            mobile: res.data.phoneNumber,
+            address: res.data.address,
+            gender: res.data.gender,
+            image: res.data.profilePicture,
+            dob: res.data.dateOfBirth,
+            category: res.data.category,
+        };
+
+        setData(profile);
+        setDraft(profile);
+
+    } else if (role === "ADMIN") {
+
+        const res = await getAdminProfile();
+
+        if (cancelled) return;
+
+        const profile = {
+            id: res.data.adminId,
+            role: "admin",
+            name: res.data.fullName,
+            email: res.data.email,
+            mobile: "",
+            address: "",
+            gender: "",
+            image: "",
+            dob: "",
+        };
+
+        setData(profile);
+        setDraft(profile);
+
+    } else {
+
+        const res = await getMyProviderProfile();
+
+if (cancelled) return;
+
+const profile = {
+    id: res.data.providerId,
+    role: "provider",
+    name: res.data.fullName,
+    email: res.data.email,
+    mobile: res.data.phoneNumber,
+    address: res.data.address,
+    gender: res.data.gender,
+    image: res.data.profilePicture,
+    skills: res.data.skills || [],
+    verified: res.data.verified,
+};
+
+setData(profile);
+setDraft(profile);
+    }
+
+}else {
           const res = await getProviderProfile(id);
           if (cancelled) return;
           const mapped = {
@@ -148,23 +216,79 @@ export default function Profile() {
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    try {
-      if (usingDemo) {
-        // No backend to persist to yet — just update local state.
-        setData(draft);
-        setEditMode(false);
-      } else {
-        const res = await updateMyProfile(draft);
-        setData(res.data);
-        setEditMode(false);
-      }
-    } catch (err) {
-      alert(err.response?.data?.message || 'Could not save changes. Try again.');
-    } finally {
-      setSaving(false);
+  setSaving(true);
+
+  try {
+
+    // Admin - UI only (no backend save)
+    if (role === "ADMIN") {
+      setData(draft);
+      setEditMode(false);
+      return;
     }
+
+    // Customer - save to backend
+    if (role === "CUSTOMER") {
+
+      const res = await updateMyProfile(draft);
+
+      const profile = {
+        id: res.data.customerId,
+        role: "customer",
+        name: res.data.fullName,
+        email: res.data.email,
+        mobile: res.data.phoneNumber,
+        address: res.data.address,
+        gender: res.data.gender,
+        image: res.data.profilePicture,
+        dob: res.data.dateOfBirth,
+        category: res.data.category,
+      };
+
+      setData(profile);
+      setDraft(profile);
+      setEditMode(false);
+      return;
+    }
+
+    // Provider - UI only (until backend update API exists)
+    if (role === "PROVIDER") {
+
+  const payload = {
+    fullName: draft.name,
+    phoneNumber: draft.mobile,
+    address: draft.address,
+    profilePicture: draft.image,
+    gender: draft.gender,
+    skills: draft.skills,
   };
+
+  const res = await updateMyProviderProfile(payload);
+
+  const profile = {
+    id: res.data.providerId,
+    role: "provider",
+    name: res.data.fullName,
+    email: res.data.email,
+    mobile: res.data.phoneNumber,
+    address: res.data.address,
+    gender: res.data.gender,
+    image: res.data.profilePicture,
+    skills: res.data.skills,
+    verified: res.data.verified,
+  };
+
+  setData(profile);
+  setDraft(profile);
+  setEditMode(false);
+  return;
+}
+  } catch (err) {
+    alert(err.response?.data?.message || "Could not save changes.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleCancel = () => {
     setDraft(data);
@@ -208,12 +332,12 @@ export default function Profile() {
     );
   }
 
-  const initials = data.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = (data?.name || "")
+  .split(" ")
+  .map((n) => n[0] || "")
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
 
   return (
     <div className="profile-page">
@@ -226,38 +350,38 @@ export default function Profile() {
         </div>
       )}
 
-      {data.role === 'customer' ? (
-        <CustomerProfile
-          data={data}
-          draft={draft}
-          editMode={editMode}
-          isOwnProfile={isOwnProfile}
-          initials={initials}
-          onChange={handleChange}
-          onEdit={() => setEditMode(true)}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          saving={saving}
-          onDelete={handleDeleteAccount}
-          deleting={deleting}
-        />
-      ) : (
-        <ProviderProfile
-          data={data}
-          draft={draft}
-          editMode={editMode}
-          isOwnProfile={isOwnProfile}
-          initials={initials}
-          onChange={handleChange}
-          onEdit={() => setEditMode(true)}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onRequest={() => navigate(`/request/${data.id}`)}
-          saving={saving}
-          onDelete={handleDeleteAccount}
-          deleting={deleting}
-        />
-      )}
+      {data.role === "provider" ? (
+    <ProviderProfile
+        data={data}
+        draft={draft}
+        editMode={editMode}
+        isOwnProfile={isOwnProfile}
+        initials={initials}
+        onChange={handleChange}
+        onEdit={() => setEditMode(true)}
+        onSave={handleSave}
+        onCancel={handleCancel}
+        onRequest={() => navigate(`/request/${data.id}`)}
+        saving={saving}
+        onDelete={handleDeleteAccount}
+        deleting={deleting}
+    />
+) : (
+    <CustomerProfile
+        data={data}
+        draft={draft}
+        editMode={editMode}
+        isOwnProfile={isOwnProfile}
+        initials={initials}
+        onChange={handleChange}
+        onEdit={() => setEditMode(true)}
+        onSave={handleSave}
+        onCancel={handleCancel}
+        saving={saving}
+        onDelete={handleDeleteAccount}
+        deleting={deleting}
+    />
+)}
 
       <Footer />
     </div>
@@ -272,8 +396,7 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
     { key: 'mobile',   label: 'Mobile number',      icon: Phone,    type: 'tel' },
     { key: 'address',  label: 'Address',            icon: MapPin,   type: 'text' },
     { key: 'dob',      label: 'Date of birth',      icon: Calendar, type: 'date' },
-    { key: 'gender',   label: 'Gender',             icon: User,     type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
-    { key: 'language', label: 'Preferred language', icon: Globe2,   type: 'text' },
+    { key: 'gender',   label: 'Gender',             icon: User,     type: 'select', options: ['Male', 'Female', 'Other'] },
   ];
 
   return (
@@ -284,36 +407,70 @@ function CustomerProfile({ data, draft, editMode, isOwnProfile, initials, onChan
             {data.image ? <img src={data.image} alt={data.name} /> : initials}
           </div>
           {editMode && (
-            <button className="profile-avatar-edit" aria-label="Change photo">
-              <Camera size={14} aria-hidden="true" />
-            </button>
-          )}
+  <input
+    type="text"
+    placeholder="Paste profile image URL"
+    value={draft.image || ""}
+    onChange={(e) => onChange("image", e.target.value)}
+    className="profile-image-input"
+  />
+)}
         </div>
         <h1 className="profile-header-name">{editMode ? draft.name : data.name}</h1>
         <span className="profile-role-tag customer">Customer account</span>
         {isOwnProfile && (
-          <div className="profile-header-actions">
-            {editMode ? (
-              <>
-                <button className="profile-btn profile-btn-ghost" onClick={onCancel} disabled={saving}>
-                  <X size={15} /> Cancel
-                </button>
-                <button className="profile-btn profile-btn-solid" onClick={onSave} disabled={saving}>
-                  <Save size={15} /> {saving ? 'Saving...' : 'Save changes'}
-                </button>
-              </>
-            ) : (
-              <>
-                <button className="profile-btn profile-btn-solid" onClick={onEdit}>
-                  <Pencil size={15} /> Edit profile
-                </button>
-                <button className="profile-btn profile-btn-danger" onClick={onDelete} disabled={deleting}>
-                  <Trash2 size={15} /> {deleting ? 'Deleting...' : 'Delete account'}
-                </button>
-              </>
-            )}
-          </div>
+  <div className="profile-header-actions">
+    {editMode ? (
+      <>
+        <button
+          className="profile-btn profile-btn-ghost"
+          onClick={onCancel}
+          disabled={saving}
+        >
+          <X size={15} /> Cancel
+        </button>
+
+        <button
+          className="profile-btn profile-btn-solid"
+          onClick={onSave}
+          disabled={saving}
+        >
+          <Save size={15} /> {saving ? "Saving..." : "Save changes"}
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          className="profile-btn profile-btn-solid"
+          onClick={() => {
+            const role = localStorage.getItem("role");
+
+            if (role === "ADMIN") {
+              alert("Admin profile editing is currently not available.");
+              return;
+            }
+
+            onEdit();
+          }}
+        >
+          <Pencil size={15} /> Edit profile
+        </button>
+
+        {localStorage.getItem("role") !== "ADMIN" && (
+          <button
+            className="profile-btn profile-btn-danger"
+            onClick={onDelete}
+            disabled={deleting}
+          >
+            <Trash2 size={15} />{" "}
+            {deleting ? "Deleting..." : "Delete account"}
+          </button>
         )}
+      </>
+    )}
+  </div>
+)}
+        
       </div>
 
       <div className="profile-body">
@@ -350,7 +507,7 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
   const fields = [
     { key: 'name',     label: 'Full name',       icon: User,          type: 'text' },
     { key: 'address',  label: 'Location',        icon: MapPin,        type: 'text' },
-    { key: 'gender',   label: 'Gender',          icon: User,          type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
+    { key: 'gender',   label: 'Gender',          icon: User,          type: 'select', options: ['Male', 'Female', 'Other'] },
     { key: 'mobile',   label: 'Mobile number',   icon: Phone,         type: 'tel' },
     { key: 'whatsapp', label: 'WhatsApp number', icon: MessageCircle, type: 'tel' },
     { key: 'email',    label: 'Email address',   icon: Mail,          type: 'email' },
@@ -361,13 +518,34 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
       <div className="profile-header-banner">
         <div className="profile-avatar-wrap">
           <div className="profile-avatar provider">
-            {data.image ? <img src={data.image} alt={data.name} /> : initials}
+            {(editMode ? draft.image : data.image) ? (
+  <img
+    src={editMode ? draft.image : data.image}
+    alt={data.name}
+  />
+) : (
+  initials
+)}
           </div>
-          {editMode && (
-            <button className="profile-avatar-edit" aria-label="Change photo">
-              <Camera size={14} aria-hidden="true" />
-            </button>
-          )}
+         {editMode && (
+  <>
+    <button
+      type="button"
+      className="profile-avatar-edit"
+      aria-label="Change photo"
+    >
+      <Camera size={14} />
+    </button>
+
+    <input
+      type="text"
+      placeholder="Paste profile image URL"
+      value={draft.image || ""}
+      onChange={(e) => onChange("image", e.target.value)}
+      className="profile-image-input"
+    />
+  </>
+)}
         </div>
         <h1 className="profile-header-name">
           {editMode ? draft.name : data.name}
@@ -397,7 +575,7 @@ function ProviderProfile({ data, draft, editMode, isOwnProfile, initials, onChan
                 </button>
                 <button className="profile-btn profile-btn-solid" onClick={onSave} disabled={saving}>
                   <Save size={15} /> {saving ? 'Saving...' : 'Save changes'}
-                </button>
+                </button>className="profile-btn profile-btn-solid"
               </>
             ) : (
               <>

@@ -10,7 +10,10 @@ import com.workly.backend.repository.ServiceProviderRepository;
 import com.workly.backend.service.ProviderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.workly.backend.security.CustomUserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.workly.backend.enums.Gender;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,11 +39,23 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     private ProviderResponse toResponse(ServiceProvider provider) {
+
         ProviderResponse response = new ProviderResponse();
+
         response.setProviderId(provider.getProviderId());
         response.setFullName(provider.getFullName());
         response.setEmail(provider.getEmail());
+        response.setPhoneNumber(provider.getPhoneNumber());
+        response.setAddress(provider.getAddress());
+        response.setProfilePicture(provider.getProfilePicture());
+        response.setGender(
+                provider.getGender() != null
+                        ? provider.getGender().name()
+                        : null
+        );
+        response.setSkills(provider.getSkills());
         response.setVerified(provider.isVerified());
+
         return response;
     }
 
@@ -108,12 +123,31 @@ public class ProviderServiceImpl implements ProviderService {
 
     @Override
     public ProviderResponse updateProvider(String providerId, ProviderResponse providerResponse) {
+
         ServiceProvider provider = findByMongoId(providerId);
-        if (providerResponse.getFullName() != null) {
+
+        if (providerResponse.getFullName() != null)
             provider.setFullName(providerResponse.getFullName());
-        }
+
+        if (providerResponse.getPhoneNumber() != null)
+            provider.setPhoneNumber(providerResponse.getPhoneNumber());
+
+        if (providerResponse.getAddress() != null)
+            provider.setAddress(providerResponse.getAddress());
+
+        if (providerResponse.getProfilePicture() != null)
+            provider.setProfilePicture(providerResponse.getProfilePicture());
+
+        if (providerResponse.getGender() != null)
+            provider.setGender(Gender.valueOf(providerResponse.getGender()));
+
+        if (providerResponse.getSkills() != null)
+            provider.setSkills(providerResponse.getSkills());
+
         provider.setUpdatedAt(LocalDateTime.now());
+
         providerRepository.save(provider);
+
         return toResponse(provider);
     }
 
@@ -187,4 +221,52 @@ public class ProviderServiceImpl implements ProviderService {
         return toPublicResponse(provider);
     }
 
+    @Override
+    public ProviderResponse getMyProfile() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails user =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        ServiceProvider provider =
+                providerRepository.findByEmail(user.getUsername())
+                        .orElseThrow(() ->
+                                new UserNotFoundException("Provider not found"));
+
+        return toResponse(provider);
+
+    }
+
+    @Override
+    public ProviderResponse updateMyProfile(String email, ProviderResponse providerResponse) {
+
+        ServiceProvider provider = providerRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Provider not found"));
+
+        if (providerResponse.getFullName() != null)
+            provider.setFullName(providerResponse.getFullName());
+
+        if (providerResponse.getPhoneNumber() != null)
+            provider.setPhoneNumber(providerResponse.getPhoneNumber());
+
+        if (providerResponse.getAddress() != null)
+            provider.setAddress(providerResponse.getAddress());
+
+        if (providerResponse.getProfilePicture() != null)
+            provider.setProfilePicture(providerResponse.getProfilePicture());
+
+        if (providerResponse.getGender() != null)
+            provider.setGender(com.workly.backend.enums.Gender.valueOf(providerResponse.getGender()));
+
+        if (providerResponse.getSkills() != null)
+            provider.setSkills(providerResponse.getSkills());
+
+        provider.setUpdatedAt(java.time.LocalDateTime.now());
+
+        providerRepository.save(provider);
+
+        return toResponse(provider);
+    }
 }

@@ -90,38 +90,40 @@ const STATUS_COLORS = {
 
 export default function CustomerDashboard() {
   const [heroSlide, setHeroSlide] = useState(0);
-  const [name, setName] = useState(DEMO_NAME);
-  const [bookings, setBookings] = useState(DEMO_BOOKINGS);
-  const [loading, setLoading] = useState(true);
-  const [usingDemo, setUsingDemo] = useState(false);
+  const [name, setName] = useState("");
+const [bookings, setBookings] = useState([]);
+const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
 
-    Promise.allSettled([getMyProfile(), getMyBookings()]).then(([profileRes, bookingsRes]) => {
-      if (cancelled) return;
-      let anyDemo = false;
+  const loadDashboard = async () => {
 
-      if (profileRes.status === 'fulfilled') {
-        setName(profileRes.value.data?.name?.split(' ')[0] || DEMO_NAME);
-      } else {
-        anyDemo = true;
-      }
+    try {
 
-      if (bookingsRes.status === 'fulfilled') {
-        setBookings(bookingsRes.value.data);
-      } else {
-        anyDemo = true;
-      }
+      const [profileRes, bookingsRes] = await Promise.all([
+        getMyProfile(),
+        getMyBookings()
+      ]);
 
-      setUsingDemo(anyDemo);
+      setName(
+        profileRes.data.fullName
+          ? profileRes.data.fullName.split(" ")[0]
+          : ""
+      );
+
+      setBookings(bookingsRes.data || []);
+
+    } catch (error) {
+      console.error("Dashboard Error:", error);
+    } finally {
       setLoading(false);
-    });
+    }
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  };
+
+  loadDashboard();
+
+}, []);
 
   const active = bookings.filter((b) => b.status === 'PENDING' || b.status === 'ACCEPTED');
   const completed = bookings.filter((b) => b.status === 'COMPLETED');
@@ -141,11 +143,30 @@ export default function CustomerDashboard() {
   const spendByMonth = useMemo(() => {
     const map = {};
     completed.forEach((b) => {
-      const month = new Date(b.date).toLocaleDateString('en-GB', { month: 'short' });
+      const month = new Date(b.bookingDate).toLocaleDateString('en-GB', { month: 'short' });
       map[month] = (map[month] || 0) + (b.amount || 0);
     });
     return Object.entries(map).map(([month, amount]) => ({ month, amount }));
   }, [completed]);
+
+  if (loading) {
+  return (
+    <div className="home">
+      <Navbar />
+      <div
+        style={{
+          padding: "120px 0",
+          textAlign: "center",
+          fontSize: "20px",
+          fontWeight: "600",
+        }}
+      >
+        Loading Dashboard...
+      </div>
+      <Footer />
+    </div>
+  );
+}
 
   return (
     <div className="home">
@@ -210,13 +231,6 @@ export default function CustomerDashboard() {
           <h2>Welcome back, {name}</h2>
           <p>A quick look at your bookings and spending on Workly.</p>
         </div>
-
-        {usingDemo && !loading && (
-          <div className="cdash-notice">
-            <i className="ti ti-info-circle" aria-hidden="true"></i>
-            Showing demo data — connect the bookings API to see your real activity.
-          </div>
-        )}
 
         <div className="cdash-stats">
           <div className="cdash-stat-card">

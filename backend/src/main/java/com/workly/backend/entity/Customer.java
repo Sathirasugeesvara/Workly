@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.LocalDate;
 
 /**
  * Customer Entity
@@ -43,4 +44,7 @@ public class Customer extends User {
 
     private Gender gender;
 
+    private LocalDate dateOfBirth;
+
+    private String category;
 }

@@ -41,4 +41,7 @@ public interface ProviderService {
      */
     PublicProviderResponse getPublicProviderById(String providerId);
 
+    ProviderResponse getMyProfile();
+
+    ProviderResponse updateMyProfile(String email, ProviderResponse providerResponse);
 }
