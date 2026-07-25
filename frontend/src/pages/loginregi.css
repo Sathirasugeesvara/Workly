@@ -316,14 +316,18 @@
 .toggle-pass {
   position: absolute;
   right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
   background: none;
   border: none;
   cursor: pointer;
   color: #999;
-  font-size: 17px;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  padding: 0;
+  padding: 4px;
 }
 
 .toggle-pass:hover {

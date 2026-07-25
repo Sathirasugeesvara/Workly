@@ -4,15 +4,18 @@ import com.workly.backend.dto.response.AdminProviderResponse;
 import com.workly.backend.dto.response.BookingStatusPointResponse;
 import com.workly.backend.dto.response.EarningsPointResponse;
 import com.workly.backend.dto.response.ProviderResponse;
+import com.workly.backend.dto.response.ProviderReviewResponse;
 import com.workly.backend.dto.response.ProviderSummaryResponse;
 import com.workly.backend.dto.response.ProviderVerificationResponse;
 import com.workly.backend.dto.response.PublicProviderResponse;
 import com.workly.backend.dto.response.ScheduleItemResponse;
 import com.workly.backend.entity.Booking;
+import com.workly.backend.entity.Review;
 import com.workly.backend.entity.ServiceProvider;
 import com.workly.backend.enums.BookingStatus;
 import com.workly.backend.exception.UserNotFoundException;
 import com.workly.backend.repository.BookingRepository;
+import com.workly.backend.repository.ReviewRepository;
 import com.workly.backend.repository.ServiceProviderRepository;
 import com.workly.backend.service.ProviderService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class ProviderServiceImpl implements ProviderService {
 
     private final ServiceProviderRepository providerRepository;
     private final BookingRepository bookingRepository;
+    private final ReviewRepository reviewRepository;
 
     private ServiceProvider findByMongoId(String providerId) {
         return providerRepository.findById(providerId)
@@ -55,6 +59,19 @@ public class ProviderServiceImpl implements ProviderService {
 
         return providerRepository.findByEmail(user.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("Provider not found"));
+    }
+
+    /**
+     * Average of a provider's review ratings, rounded to 1 decimal.
+     * Returns 0 when the provider has no reviews yet.
+     */
+    private double averageRating(String providerId) {
+        List<Review> reviews = reviewRepository.findByProviderIdOrderByCreatedAtDesc(providerId);
+        if (reviews.isEmpty()) {
+            return 0;
+        }
+        double avg = reviews.stream().mapToInt(Review::getRating).average().orElse(0);
+        return Math.round(avg * 10.0) / 10.0;
     }
 
     private String primaryService(ServiceProvider provider) {
@@ -96,7 +113,7 @@ public class ProviderServiceImpl implements ProviderService {
                 .phone(provider.getPhoneNumber())
                 .service(primaryService(provider))
                 .location(provider.getAddress())
-                .rating(0)
+                .rating(averageRating(provider.getProviderId()))
                 .jobsDone(0)
                 .verified(provider.isVerified())
                 .joinedDate(provider.getCreatedAt())
@@ -121,9 +138,9 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     /**
-     * Rating/reviews/jobsDone are hardcoded to 0 for now, same as
-     * toAdminResponse() above — real numbers need the Review entity,
-     * which doesn't exist yet.
+     * jobsDone is still hardcoded to 0 — needs a "completed bookings count"
+     * lookup the same way getMySummary() does below; left untouched since
+     * it's outside the dashboard scope of this change.
      */
     private PublicProviderResponse toPublicResponse(ServiceProvider provider) {
         return PublicProviderResponse.builder()
@@ -136,8 +153,8 @@ public class ProviderServiceImpl implements ProviderService {
                                 ? provider.getGender().name()
                                 : null
                 )
-                .rating(0)
-                .reviews(0)
+                .rating(averageRating(provider.getProviderId()))
+                .reviews(reviewRepository.findByProviderIdOrderByCreatedAtDesc(provider.getProviderId()).size())
                 .jobsDone(0)
                 .verified(provider.isVerified())
                 .skills(provider.getSkills())
@@ -251,6 +268,7 @@ public class ProviderServiceImpl implements ProviderService {
                 .map(this::toPublicResponse)
                 .toList();
     }
+
     @Override
     public PublicProviderResponse getPublicProviderById(String providerId) {
         ServiceProvider provider = providerRepository.findByProviderId(providerId)
@@ -308,8 +326,8 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     /**
-     * rating is hardcoded to 0 here too — same reason as toPublicResponse()
-     * above, no Review module yet.
+     * rating now comes from real reviews via averageRating(); everything
+     * else was already live off the Booking collection.
      */
     @Override
     public ProviderSummaryResponse getMySummary() {
@@ -325,7 +343,7 @@ public class ProviderServiceImpl implements ProviderService {
         return ProviderSummaryResponse.builder()
                 .name(provider.getFullName())
                 .avatarUrl(provider.getProfilePicture())
-                .rating(0)
+                .rating(averageRating(provider.getProviderId()))
                 .verified(provider.isVerified())
                 .pendingRequests(pending)
                 .acceptedJobs(accepted)
@@ -428,6 +446,24 @@ public class ProviderServiceImpl implements ProviderService {
                                         + " — "
                                         + (b.getCustomerName() != null ? b.getCustomerName() : "Customer")
                         )
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<ProviderReviewResponse> getMyReviews(int limit) {
+
+        ServiceProvider provider = currentProvider();
+
+        return reviewRepository.findByProviderIdOrderByCreatedAtDesc(provider.getProviderId())
+                .stream()
+                .limit(limit)
+                .map(r -> ProviderReviewResponse.builder()
+                        .id(r.getId())
+                        .customer(r.getCustomerName() != null ? r.getCustomerName() : "Customer")
+                        .rating(r.getRating())
+                        .comment(r.getComment())
+                        .date(r.getCreatedAt().toLocalDate().toString())
                         .build())
                 .toList();
     }

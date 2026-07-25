@@ -3,6 +3,7 @@ package com.workly.backend.controller;
 import com.workly.backend.dto.response.BookingStatusPointResponse;
 import com.workly.backend.dto.response.EarningsPointResponse;
 import com.workly.backend.dto.response.ProviderResponse;
+import com.workly.backend.dto.response.ProviderReviewResponse;
 import com.workly.backend.dto.response.ProviderSummaryResponse;
 import com.workly.backend.dto.response.ScheduleItemResponse;
 import com.workly.backend.service.ProviderService;
@@ -69,4 +70,10 @@ public class ProviderController {
         return providerService.getMySchedule(days);
     }
 
+    /** GET /api/provider/reviews?limit=5 — dashboard reviews list */
+    @GetMapping("/reviews")
+    public List<ProviderReviewResponse> getMyReviews(
+            @RequestParam(defaultValue = "5") int limit) {
+        return providerService.getMyReviews(limit);
+    }
 }

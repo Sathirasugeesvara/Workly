@@ -4,6 +4,7 @@ import com.workly.backend.dto.response.AdminProviderResponse;
 import com.workly.backend.dto.response.BookingStatusPointResponse;
 import com.workly.backend.dto.response.EarningsPointResponse;
 import com.workly.backend.dto.response.ProviderResponse;
+import com.workly.backend.dto.response.ProviderReviewResponse;
 import com.workly.backend.dto.response.ProviderSummaryResponse;
 import com.workly.backend.dto.response.ProviderVerificationResponse;
 import com.workly.backend.dto.response.PublicProviderResponse;
@@ -39,6 +40,7 @@ public interface ProviderService {
      * Verified providers only, for the public browse/booking flow.
      */
     List<PublicProviderResponse> getVerifiedProviders();
+
     /**
      * A single verified provider's public profile card, looked up by
      * business providerId (e.g. "PRO000001") — used by the /profile/:id page.
@@ -70,4 +72,10 @@ public interface ProviderService {
      * scheduled within the next {@code days} days.
      */
     List<ScheduleItemResponse> getMySchedule(int days);
+
+    /**
+     * The logged-in provider's most recent reviews, newest first,
+     * capped at {@code limit}.
+     */
+    List<ProviderReviewResponse> getMyReviews(int limit);
 }

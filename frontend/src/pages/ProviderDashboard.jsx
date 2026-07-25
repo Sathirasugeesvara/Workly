@@ -19,7 +19,6 @@ import {
   getProviderSummary,
   getEarningsTrend,
   getProviderBookingStatus,
-  getProviderReviews,
   getProviderSchedule,
 } from '../services/providerservice';
 import './ProviderDashboard.css';
@@ -62,14 +61,6 @@ const STATUS_COLORS = {
   Cancelled: '#ef4444',
 };
 
-const DEMO_REVIEWS = [
-  { id: 'r1', customer: 'Amaya', rating: 5, comment: 'Excellent electrician, fixed the issue in no time.', date: '2026-07-10' },
-  { id: 'r2', customer: 'Ruwan Silva', rating: 5, comment: 'Very professional and punctual, highly recommend.', date: '2026-07-08' },
-  { id: 'r3', customer: 'Dinesh Kumara', rating: 4, comment: 'Good work, explained the problem clearly.', date: '2026-07-05' },
-  { id: 'r4', customer: 'Ishara Bandara', rating: 5, comment: 'Neat and tidy, will book again for sure.', date: '2026-07-02' },
-  { id: 'r5', customer: 'Chamodi Silva', rating: 4, comment: 'Arrived a little late but did solid work.', date: '2026-06-28' },
-];
-
 function buildDemoSchedule() {
   const now = new Date();
   const items = [
@@ -90,16 +81,6 @@ const DEMO_SCHEDULE = buildDemoSchedule();
 /* ---------------------------------------------------------------------- */
 
 const initialsOf = (name) => name.split(' ').map((n) => n[0]).slice(0, 2).join('');
-
-function StarRating({ value }) {
-  return (
-      <span className="pdash-stars" aria-label={`${value} out of 5 stars`}>
-      {[1, 2, 3, 4, 5].map((n) => (
-          <i key={n} className={`ti ${n <= value ? 'ti-star-filled' : 'ti-star'}`} aria-hidden="true"></i>
-      ))}
-    </span>
-  );
-}
 
 function MiniCalendar({ schedule }) {
   const today = new Date();
@@ -152,7 +133,6 @@ export default function ProviderDashboard() {
   const [summary, setSummary] = useState(DEMO_SUMMARY);
   const [earnings, setEarnings] = useState(DEMO_EARNINGS);
   const [statusData, setStatusData] = useState(DEMO_STATUS);
-  const [reviews, setReviews] = useState(DEMO_REVIEWS);
   const [schedule, setSchedule] = useState(DEMO_SCHEDULE);
 
   useEffect(() => {
@@ -164,13 +144,17 @@ export default function ProviderDashboard() {
         getProviderSummary(),
         getEarningsTrend(6),
         getProviderBookingStatus(),
-        getProviderReviews(5),
         getProviderSchedule(30),
       ]);
 
       if (cancelled) return;
 
-      const [summaryRes, earningsRes, statusRes, reviewsRes, scheduleRes] = results;
+      const [
+    summaryRes,
+    earningsRes,
+    statusRes,
+    scheduleRes,
+] = results;
       let anyDemo = false;
 
       if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value.data);
@@ -180,9 +164,6 @@ export default function ProviderDashboard() {
       else anyDemo = true;
 
       if (statusRes.status === 'fulfilled') setStatusData(statusRes.value.data);
-      else anyDemo = true;
-
-      if (reviewsRes.status === 'fulfilled') setReviews(reviewsRes.value.data);
       else anyDemo = true;
 
       if (scheduleRes.status === 'fulfilled') setSchedule(scheduleRes.value.data);
@@ -305,26 +286,7 @@ export default function ProviderDashboard() {
 
           {/* ---------- Reviews + Calendar ---------- */}
           <div className="pdash-mid-grid">
-            <div className="pdash-card">
-              <div className="pdash-card-title">
-                <h2>Customer reviews</h2>
-                <Link to="/provider/booking-history" className="pdash-link">View all</Link>
-              </div>
-              <div className="pdash-reviews-list">
-                {reviews.slice(0, 5).map((r) => (
-                    <div className="pdash-review" key={r.id}>
-                      <div className="pdash-review-top">
-                        <span className="pdash-review-name">{r.customer}</span>
-                        <StarRating value={r.rating} />
-                      </div>
-                      <p>"{r.comment}"</p>
-                      <span className="pdash-review-date">
-                    {new Date(r.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                  </span>
-                    </div>
-                ))}
-              </div>
-            </div>
+            
 
             <div className="pdash-card">
               <h2>Calendar</h2>

@@ -230,13 +230,13 @@ export default function Register() {
                   style={{ paddingRight: '40px' }}
                 />
                 <button
-                  type="button"
-                  className="toggle-pass"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  onClick={() => setShowPassword((s) => !s)}
-                >
-                  <i className={`ti ${showPassword ? 'ti-eye-off' : 'ti-eye'}`} aria-hidden="true"></i>
-                </button>
+  type="button"
+  className="toggle-pass"
+  aria-label={showPassword ? 'Hide password' : 'Show password'}
+  onClick={() => setShowPassword((s) => !s)}
+>
+  {showPassword ? 'Hide' : 'Show'}
+</button>
               </div>
             </div>
 
