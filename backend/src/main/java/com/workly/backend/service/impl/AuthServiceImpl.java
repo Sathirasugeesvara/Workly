@@ -99,15 +99,24 @@ public class AuthServiceImpl implements AuthService {
             provider.setAddress(request.getAddress());
             provider.setGender(request.getGender());
 
-            long providerCount = providerRepository.count() + 1;
-            provider.setProfilePicture("default-profile.png");
+            String nextProviderId = "PRO000001";
 
+            var lastProvider = providerRepository.findTopByOrderByProviderIdDesc();
+
+            if (lastProvider.isPresent()) {
+                String lastId = lastProvider.get().getProviderId();
+                int number = Integer.parseInt(lastId.substring(3));
+                nextProviderId = String.format("PRO%06d", number + 1);
+            }
+
+            provider.setProviderId(nextProviderId);
+
+            provider.setProfilePicture("default-profile.png");
             provider.setVerified(false);
             provider.setSkills(new ArrayList<>());
             provider.setServices(new ArrayList<>());
 
             providerRepository.save(provider);
-
         }
 
         return new AuthResponse(
