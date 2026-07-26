@@ -38,6 +38,22 @@ const EMPTY_SUMMARY = {
   completedJobs: 0,
 };
 
+const DEMO_EARNINGS = [
+  { month: 'Feb', earnings: 0 },
+  { month: 'Mar', earnings: 0 },
+  { month: 'Apr', earnings: 0 },
+  { month: 'May', earnings: 0 },
+  { month: 'Jun', earnings: 0 },
+  { month: 'Jul', earnings: 0 },
+];
+
+const DEMO_STATUS = [
+  { name: 'Pending', value: 0 },
+  { name: 'Accepted', value: 0 },
+  { name: 'Completed', value: 0 },
+  { name: 'Cancelled', value: 0 },
+];
+
 const STATUS_COLORS = {
   Pending: '#ff9800',
   Accepted: '#6366f1',
@@ -115,9 +131,9 @@ export default function ProviderDashboard() {
   const [usingDemo, setUsingDemo] = useState(false);
 
   const [summary, setSummary] = useState(EMPTY_SUMMARY);
-  const [earnings, setEarnings] = useState(DEMO_EARNINGS);
-  const [statusData, setStatusData] = useState(DEMO_STATUS);
-  const [schedule, setSchedule] = useState(DEMO_SCHEDULE);
+const [earnings, setEarnings] = useState([]);
+const [statusData, setStatusData] = useState([]);
+const [schedule, setSchedule] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
