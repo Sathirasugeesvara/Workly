@@ -100,23 +100,6 @@ public class BookingServiceImpl implements BookingService {
         return provider.getProviderId();
     }
 
-    private double getServicePrice(String service) {
-
-    if (service == null) return 2000;
-
-    return switch (service.toLowerCase()) {
-        case "electrical" -> 2000;
-        case "plumbing" -> 2500;
-        case "cleaning" -> 2800;
-        case "ac repair" -> 5500;
-        case "painting" -> 6000;
-        case "carpentry" -> 3500;
-        case "masonry" -> 5000;
-        case "general repair", "handyman" -> 2200;
-        default -> 2000;
-    };
-}
-
     private void assertOwnership(Booking booking) {
 
         Role role = currentRole();
@@ -193,7 +176,7 @@ public class BookingServiceImpl implements BookingService {
                 )
                 .address(request.getServiceAddress())
                 .notes(request.getNotes())
-                .amount(getServicePrice(provider.getServices().get(0)))
+                .amount(0)
                 .status(BookingStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
