@@ -28,31 +28,15 @@ import './ProviderDashboard.css';
 /* built out, so the dashboard is always fully populated.                 */
 /* ---------------------------------------------------------------------- */
 
-const DEMO_SUMMARY = {
-  name: 'Nimal Perera',
+const EMPTY_SUMMARY = {
+  name: '',
   avatarUrl: '',
-  rating: 4.9,
-  verified: true,
-  pendingRequests: 3,
-  acceptedJobs: 5,
-  completedJobs: 480,
+  rating: 0,
+  verified: false,
+  pendingRequests: 0,
+  acceptedJobs: 0,
+  completedJobs: 0,
 };
-
-const DEMO_EARNINGS = [
-  { month: 'Feb', earnings: 38500 },
-  { month: 'Mar', earnings: 44200 },
-  { month: 'Apr', earnings: 41800 },
-  { month: 'May', earnings: 52100 },
-  { month: 'Jun', earnings: 47600 },
-  { month: 'Jul', earnings: 31200 },
-];
-
-const DEMO_STATUS = [
-  { name: 'Pending', value: 3 },
-  { name: 'Accepted', value: 5 },
-  { name: 'Completed', value: 42 },
-  { name: 'Cancelled', value: 4 },
-];
 
 const STATUS_COLORS = {
   Pending: '#ff9800',
@@ -130,7 +114,7 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [usingDemo, setUsingDemo] = useState(false);
 
-  const [summary, setSummary] = useState(DEMO_SUMMARY);
+  const [summary, setSummary] = useState(EMPTY_SUMMARY);
   const [earnings, setEarnings] = useState(DEMO_EARNINGS);
   const [statusData, setStatusData] = useState(DEMO_STATUS);
   const [schedule, setSchedule] = useState(DEMO_SCHEDULE);
@@ -157,8 +141,14 @@ export default function ProviderDashboard() {
 ] = results;
       let anyDemo = false;
 
-      if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value.data);
-      else anyDemo = true;
+      if (
+  summaryRes.status === 'fulfilled' &&
+  summaryRes.value?.data
+) {
+  setSummary(summaryRes.value.data);
+} else {
+  console.error('Failed to load provider summary');
+}
 
       if (earningsRes.status === 'fulfilled') setEarnings(earningsRes.value.data);
       else anyDemo = true;
@@ -202,7 +192,9 @@ export default function ProviderDashboard() {
 
             <div>
               <div className="pdash-hero-name-row">
-                <h1>👋 Welcome back, {summary.name}</h1>
+                <h1>
+  👋 Welcome back, {summary.name || "Provider"}
+</h1>
                 {summary.verified && (
                     <span className="pdash-verified-badge">
                   <i className="ti ti-rosette-discount-check" aria-hidden="true"></i> Verified
@@ -226,12 +218,7 @@ export default function ProviderDashboard() {
         </div>
 
         <div className="pdash-body">
-          {usingDemo && !loading && (
-              <div className="pdash-notice">
-                <i className="ti ti-info-circle" aria-hidden="true"></i>
-                Some panels are showing demo data — connect the provider dashboard API to see live figures.
-              </div>
-          )}
+        
 
           {/* ---------- Stat cards ---------- */}
           <div className="pdash-stats">
